@@ -1,10 +1,12 @@
 #include "Tankdrive.h"
 // Convencion: Teleob gets joystick vals, AUTO: feed positive vals
-Tankdrive::Tankdrive(unsigned int Leftchannel, unsigned int Rightchannel, unsigned int GyroPort,
+Tankdrive::Tankdrive(unsigned int LeftFrontchannel, unsigned int RightFrontchannel, unsigned int LeftBackchannel, unsigned int RightBackchannel, unsigned int GyroPort,
 unsigned int UsonicPort):
 
-Left(Leftchannel, rev::CANSparkMax::MotorType::kBrushless),
-Right(Rightchannel, rev::CANSparkMax::MotorType::kBrushless),
+LeftFront(LeftFrontchannel, rev::CANSparkMax::MotorType::kBrushless),
+RightFront(RightFrontchannel, rev::CANSparkMax::MotorType::kBrushless),
+LeftBack(LeftBackchannel, rev::CANSparkMax::MotorType::kBrushless),
+RightBack(RightBackchannel, rev::CANSparkMax::MotorType::kBrushless),
 LWEncoder(3,4,true,frc::Encoder::EncodingType::k4X),	// NOTE CHANGE THE ENCODER PORTS!!!!
 RWEncoder(1,2,false,frc::Encoder::EncodingType::k4X),
 Gyro(GyroPort),
@@ -32,8 +34,8 @@ void Tankdrive::Drive(float left, float right)
 		right = 1;
 	else if(right < -1)
 		right = -1;
-	Left.Set(left * throttle * -1);		// becuase joystick values of inversed!!!!
-	Right.Set(right * throttle * -1);	// <--- ^^^^
+	LeftFront.Set(left * throttle * -1);		// becuase joystick values of inversed!!!!
+	RightFront.Set(right * throttle * -1);	// <--- ^^^^
 }
 void Tankdrive::DirectDrive(float left, float right)
 {
@@ -45,8 +47,8 @@ void Tankdrive::DirectDrive(float left, float right)
 		right = 1;
 	else if(right < -1)
 		right = -1;
-	Left.Set(left);
-	Right.Set(right);
+	LeftFront.Set(left);
+	RightFront.Set(right);
 }
 void Tankdrive::SetThrottle(float Ithrottle)
 {
