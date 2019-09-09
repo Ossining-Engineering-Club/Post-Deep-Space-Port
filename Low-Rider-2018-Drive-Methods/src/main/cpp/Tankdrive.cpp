@@ -26,29 +26,33 @@ Usonic(UsonicPort)
 void Tankdrive::Drive(float left, float right)
 {
 	// Limit left and right inputs to between -1 and 1
-	if(left > 1)
-		left = 1;
-	else if(left < -1)
-		left = -1;
-	if(right > 1)
-		right = 1;
-	else if(right < -1)
-		right = -1;
-	LeftFront.Set(left * throttle * -1);		// becuase joystick values of inversed!!!!
-	RightFront.Set(right * throttle * -1);	// <--- ^^^^
+	if(left > 1.0)
+		left = 1.0;
+	else if(left < -1.0)
+		left = -1.0;
+	if(right > 1.0)
+		right = 1.0;
+	else if(right < -1.0)
+		right = -1.0;
+	LeftFront.Set(left * throttle * -1.0);		// becuase joystick values of inversed!!!!
+    LeftBack.Set(left * thottle * -1.0);
+	RightFront.Set(right * throttle);
+    RightBack.Set(right * throttle)
 }
 void Tankdrive::DirectDrive(float left, float right)
 {
-	if(left > 1)
-		left = 1;
-	else if(left < -1)
-		left = -1;
-	if(right > 1)
-		right = 1;
-	else if(right < -1)
-		right = -1;
+	if(left > 1.0)
+		left = 1.0;
+	else if(left < -1.0)
+		left = -1.0;
+	if(right > 1.0)
+		right = 1.0;
+	else if(right < -1.0)
+		right = -1.0;
 	LeftFront.Set(left);
-	RightFront.Set(right);
+    leftBack.Set(left);
+	RightFront.Set(-1.0*right);
+    RightBack.Set(-1.0*right)
 }
 void Tankdrive::SetThrottle(float Ithrottle)
 {
