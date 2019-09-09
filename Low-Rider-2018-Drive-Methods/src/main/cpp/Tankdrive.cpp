@@ -1,16 +1,15 @@
 #include "Tankdrive.h"
-#include "WPILib.h"
 // Convencion: Teleob gets joystick vals, AUTO: feed positive vals
 Tankdrive::Tankdrive(unsigned int Leftchannel, unsigned int Rightchannel, unsigned int GyroPort,
 unsigned int UsonicPort):
 
-Left(Leftchannel),
-Right(Rightchannel),
+Left(Leftchannel, rev::CANSparkMax::MotorType::kBrushless),
+Right(Rightchannel, rev::CANSparkMax::MotorType::kBrushless),
 LWEncoder(3,4,true,frc::Encoder::EncodingType::k4X),	// NOTE CHANGE THE ENCODER PORTS!!!!
 RWEncoder(1,2,false,frc::Encoder::EncodingType::k4X),
 Gyro(GyroPort),
 AutoTimer(),
-vision(XRESOLUTION, YRESOLUTION),
+//vision(XRESOLUTION, YRESOLUTION),
 Usonic(UsonicPort)
 
 {
@@ -135,7 +134,7 @@ void Tankdrive::AutoDriveGyroLimit(float distance, float speed, float TimeOut, D
 	Lift.Set(0.0);
 }
 
-int Tankdrive::AutoDriveVision(float USrange, float speed, float Maxdistance, float TimeOut) //Args are distance, speed
+/*int Tankdrive::AutoDriveVision(float USrange, float speed, float Maxdistance, float TimeOut) //Args are distance, speed
 {
 	int returnC = 0;
 	float Sample, LastSample;  //Current Data Value and Previous data Value
@@ -194,7 +193,7 @@ int Tankdrive::AutoDriveVision(float USrange, float speed, float Maxdistance, fl
 
 	Tankdrive::DirectDrive(0.0,0.0);
 	return returnC;
-}
+}*/
 
 void Tankdrive::AutoTurnGyroBoth(float angle, float speed, float TimeOut)	 //Args are angle, speed
 {
@@ -210,11 +209,11 @@ void Tankdrive::AutoTurnGyroBoth(float angle, float speed, float TimeOut)	 //Arg
 
 	while (fabs(Gyro.GetAngle()) <= fabs(angle)  && AutoTimer.Get() <= TimeOut)	//When the gyroscope gives a reading below/equal to 45
 	{
-/*		if((diff=(fabs(angle)-fabs(Gyro.GetAngle()))/ANGTOLERANCE <= 1.0))
+/**if((diff=(fabs(angle)-fabs(Gyro.GetAngle()))/ANGTOLERANCE <= 1.0))
 		{
 				if (angle > 0.0) Tankdrive::DirectDrive(speed * diff, -1.0 * speed * diff);
 				else Tankdrive::DirectDrive(-1.0 * speed * diff, speed * diff);
-		}*/
+		}**/
 	    Wait(0.001);
 
 	}

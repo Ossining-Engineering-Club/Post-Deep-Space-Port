@@ -1,8 +1,9 @@
 #pragma once
-#include "WPIlib.h"
+#include <frc/WPIlib.h>
 #include "Constants.h"
 #include "Ultrasonic.h"
-#include "Vision.h"
+#include <rev/CANSparkMax.h>
+using namespace frc;
 
 class Tankdrive
 {
@@ -32,15 +33,15 @@ public: // for functions
 	void GetUSSample();
 	double GetUSRange();
 private: // for variables
-	Spark Left;	// change back fro worlds
-	Spark Right;
+	rev::CANSparkMax Left;	// change back fro worlds
+    rev::CANSparkMax Right;
 //	VictorSP Left;
 //	VictorSP Right;
 	Encoder LWEncoder;
 	Encoder RWEncoder;
 	AnalogGyro Gyro;
 	Timer AutoTimer;
-	Vision vision;
+//	Vision vision;
 	USSensor Usonic;
 	float VisionX;
 	float throttle;

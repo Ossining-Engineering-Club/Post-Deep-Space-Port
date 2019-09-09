@@ -8,6 +8,8 @@
 #pragma once
 
 #include <frc/TimedRobot.h>
+#include <frc/WPIlib.h>
+using namespace frc;
 
 class Robot : public frc::TimedRobot {
  public:
