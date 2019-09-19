@@ -5,11 +5,13 @@
  */
 #pragma once
 #include <frc/WPILib.h>	//Include the FRC Library
-using namespace frc;
+
 
 /*
  * Ultrasonic Sensor Class
  */
+
+using namespace frc;
 class USSensor
 {
 	public:

@@ -6,9 +6,9 @@
 /*----------------------------------------------------------------------------*/
 
 #pragma once
+ 
+ #include <frc/WPILib.h>
 
-#include <frc/TimedRobot.h>
-#include <frc/WPIlib.h>
 using namespace frc;
 
 class Robot : public frc::TimedRobot {
@@ -23,4 +23,5 @@ class Robot : public frc::TimedRobot {
 
   void TestInit() override;
   void TestPeriodic() override;
+  
 };

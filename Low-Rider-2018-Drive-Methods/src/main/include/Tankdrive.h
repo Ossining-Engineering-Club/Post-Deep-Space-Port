@@ -1,14 +1,14 @@
 #pragma once
-#include <frc/WPIlib.h>
+#include <frc/WPILib.h>
 #include "Constants.h"
 #include "Ultrasonic.h"
-#include <rev/CANSparkMax.h>
-using namespace frc;
+#include "Vision.h"
 
+using namespace frc;
 class Tankdrive
 {
 public: // for functions
-	Tankdrive(unsigned int LeftFrontchannel, unsigned int RightFrontchannel, unsigned int LeftBackchannel, unsigned int RightBackchannel, unsigned int GyroPort, unsigned int UsonicPort);
+	Tankdrive(unsigned int Leftchannel, unsigned int Rightchannel, unsigned int GyroPort, unsigned int UsonicPort);
 	void Drive(float left, float right);
 	void DirectDrive(float left, float right);
 	void SetThrottle(float Ithrottle);
@@ -33,18 +33,15 @@ public: // for functions
 	void GetUSSample();
 	double GetUSRange();
 private: // for variables
-	rev::CANSparkMax LeftFront;	// change back fro worlds
-    rev::CANSparkMax RightFront;
-    rev::CANSparkMax LeftBack;
-    rev::CANSparkMax RightBack;
-//	VictorSP Left;
+	Spark Left;	// change back fro worlds
+	Spark Right;
 //	VictorSP Left;
 //	VictorSP Right;
 	Encoder LWEncoder;
 	Encoder RWEncoder;
 	AnalogGyro Gyro;
 	Timer AutoTimer;
-//	Vision vision;
+	Vision vision;
 	USSensor Usonic;
 	float VisionX;
 	float throttle;

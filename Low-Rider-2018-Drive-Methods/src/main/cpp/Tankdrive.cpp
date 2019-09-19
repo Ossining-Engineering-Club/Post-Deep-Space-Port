@@ -1,17 +1,16 @@
 #include "Tankdrive.h"
+#include <frc/WPILib.h>
 // Convencion: Teleob gets joystick vals, AUTO: feed positive vals
-Tankdrive::Tankdrive(unsigned int LeftFrontchannel, unsigned int RightFrontchannel, unsigned int LeftBackchannel, unsigned int RightBackchannel, unsigned int GyroPort,
+Tankdrive::Tankdrive(unsigned int Leftchannel, unsigned int Rightchannel, unsigned int GyroPort,
 unsigned int UsonicPort):
 
-LeftFront(LeftFrontchannel, rev::CANSparkMax::MotorType::kBrushless),
-RightFront(RightFrontchannel, rev::CANSparkMax::MotorType::kBrushless),
-LeftBack(LeftBackchannel, rev::CANSparkMax::MotorType::kBrushless),
-RightBack(RightBackchannel, rev::CANSparkMax::MotorType::kBrushless),
+Left(Leftchannel),
+Right(Rightchannel),
 LWEncoder(3,4,true,frc::Encoder::EncodingType::k4X),	// NOTE CHANGE THE ENCODER PORTS!!!!
 RWEncoder(1,2,false,frc::Encoder::EncodingType::k4X),
 Gyro(GyroPort),
 AutoTimer(),
-//vision(XRESOLUTION, YRESOLUTION),
+vision(XRESOLUTION, YRESOLUTION),
 Usonic(UsonicPort)
 
 {
@@ -26,33 +25,29 @@ Usonic(UsonicPort)
 void Tankdrive::Drive(float left, float right)
 {
 	// Limit left and right inputs to between -1 and 1
-	if(left > 1.0)
-		left = 1.0;
-	else if(left < -1.0)
-		left = -1.0;
-	if(right > 1.0)
-		right = 1.0;
-	else if(right < -1.0)
-		right = -1.0;
-	LeftFront.Set(left * throttle * -1.0);		// becuase joystick values of inversed!!!!
-    LeftBack.Set(left * thottle * -1.0);
-	RightFront.Set(right * throttle);
-    RightBack.Set(right * throttle)
+	if(left > 1)
+		left = 1;
+	else if(left < -1)
+		left = -1;
+	if(right > 1)
+		right = 1;
+	else if(right < -1)
+		right = -1;
+	Left.Set(left * throttle * -1);		// becuase joystick values of inversed!!!!
+	Right.Set(right * throttle * -1);	// <--- ^^^^
 }
 void Tankdrive::DirectDrive(float left, float right)
 {
-	if(left > 1.0)
-		left = 1.0;
-	else if(left < -1.0)
-		left = -1.0;
-	if(right > 1.0)
-		right = 1.0;
-	else if(right < -1.0)
-		right = -1.0;
-	LeftFront.Set(left);
-    leftBack.Set(left);
-	RightFront.Set(-1.0*right);
-    RightBack.Set(-1.0*right)
+	if(left > 1)
+		left = 1;
+	else if(left < -1)
+		left = -1;
+	if(right > 1)
+		right = 1;
+	else if(right < -1)
+		right = -1;
+	Left.Set(left);
+	Right.Set(right);
 }
 void Tankdrive::SetThrottle(float Ithrottle)
 {
@@ -140,7 +135,7 @@ void Tankdrive::AutoDriveGyroLimit(float distance, float speed, float TimeOut, D
 	Lift.Set(0.0);
 }
 
-/*int Tankdrive::AutoDriveVision(float USrange, float speed, float Maxdistance, float TimeOut) //Args are distance, speed
+int Tankdrive::AutoDriveVision(float USrange, float speed, float Maxdistance, float TimeOut) //Args are distance, speed
 {
 	int returnC = 0;
 	float Sample, LastSample;  //Current Data Value and Previous data Value
@@ -199,7 +194,7 @@ void Tankdrive::AutoDriveGyroLimit(float distance, float speed, float TimeOut, D
 
 	Tankdrive::DirectDrive(0.0,0.0);
 	return returnC;
-}*/
+}
 
 void Tankdrive::AutoTurnGyroBoth(float angle, float speed, float TimeOut)	 //Args are angle, speed
 {
@@ -215,11 +210,11 @@ void Tankdrive::AutoTurnGyroBoth(float angle, float speed, float TimeOut)	 //Arg
 
 	while (fabs(Gyro.GetAngle()) <= fabs(angle)  && AutoTimer.Get() <= TimeOut)	//When the gyroscope gives a reading below/equal to 45
 	{
-/**if((diff=(fabs(angle)-fabs(Gyro.GetAngle()))/ANGTOLERANCE <= 1.0))
+/*		if((diff=(fabs(angle)-fabs(Gyro.GetAngle()))/ANGTOLERANCE <= 1.0))
 		{
 				if (angle > 0.0) Tankdrive::DirectDrive(speed * diff, -1.0 * speed * diff);
 				else Tankdrive::DirectDrive(-1.0 * speed * diff, speed * diff);
-		}**/
+		}*/
 	    Wait(0.001);
 
 	}
@@ -314,3 +309,4 @@ double Tankdrive::GetUSRange()
 {
 	return Usonic.GetRange();
 }
+

@@ -22,3 +22,4 @@ float USSensor::GetRange(void)
 	averagerange = 0.9 * averagerange + (72.0 / 15.0) * 0.1 * 8.503 * uschannel.GetVoltage();
 	return averagerange;
 }
+
