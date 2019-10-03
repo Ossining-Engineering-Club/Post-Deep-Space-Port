@@ -1,6 +1,12 @@
 #include "Robot.h"
 
-void Robot::RobotInit(){
+Robot::Robot():
+    tankdrive(0),
+    stickLeft(0),
+    stickRight(1)
+{}
+void Robot::RobotInit()
+{
    
 }
 
@@ -16,7 +22,8 @@ void Robot::TeleopInit() {
 }
 
 void Robot::TeleopPeriodic() {
-    
+    tankdrive.SetThrottle(stickLeft.GetZ());
+    tankdrive.Drive(stickLeft.GetY(), stickRight.GetY());
 }
 
 

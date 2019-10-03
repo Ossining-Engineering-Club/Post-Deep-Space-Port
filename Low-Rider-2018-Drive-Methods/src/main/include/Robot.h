@@ -8,11 +8,17 @@
 #pragma once
  
  #include <frc/WPILib.h>
+ #include "Tankdrive.h"
 
 using namespace frc;
 
 class Robot : public frc::TimedRobot {
+ private:
+  Tankdrive tankdrive;
+  Joystick stickLeft;
+  Joystick stickRight;
  public:
+  Robot();
   void RobotInit() override;
 
   void AutonomousInit() override;

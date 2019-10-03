@@ -1,5 +1,6 @@
 #pragma once
 #include <frc/WPILib.h>
+#include <rev/CANSparkMax.h>
 #include "Constants.h"
 #include "Ultrasonic.h"
 #include "Vision.h"
@@ -8,7 +9,7 @@ using namespace frc;
 class Tankdrive
 {
 public: // for functions
-	Tankdrive(unsigned int Leftchannel, unsigned int Rightchannel, unsigned int GyroPort, unsigned int UsonicPort);
+	Tankdrive(unsigned int UsonicPort);
 	void Drive(float left, float right);
 	void DirectDrive(float left, float right);
 	void SetThrottle(float Ithrottle);
@@ -33,12 +34,19 @@ public: // for functions
 	void GetUSSample();
 	double GetUSRange();
 private: // for variables
-	Spark Left;	// change back fro worlds
-	Spark Right;
+//	Spark Left;	// change back fro worlds
+//	Spark Right;
+	rev::CANSparkMax LeftF;
+	rev::CANSparkMax RightF;
+	rev::CANSparkMax LeftB;
+	rev::CANSparkMax RightB;
+
 //	VictorSP Left;
 //	VictorSP Right;
-	Encoder LWEncoder;
-	Encoder RWEncoder;
+//	Encoder LWEncoder;
+//	Encoder RWEncoder;
+	rev::CANEncoder LWEncoder;
+	rev::CANEncoder RWEncoder;
 	AnalogGyro Gyro;
 	Timer AutoTimer;
 	Vision vision;
