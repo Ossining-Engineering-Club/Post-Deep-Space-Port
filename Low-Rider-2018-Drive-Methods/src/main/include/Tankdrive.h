@@ -3,6 +3,7 @@
 #include <rev/CANSparkMax.h>
 #include "Constants.h"
 #include "Ultrasonic.h"
+#include "OECPigeonIMU.h"
 #include "Vision.h"
 
 using namespace frc;
@@ -47,7 +48,8 @@ private: // for variables
 //	Encoder RWEncoder;
 	rev::CANEncoder LWEncoder;
 	rev::CANEncoder RWEncoder;
-	AnalogGyro Gyro;
+//	AnalogGyro Gyro;
+	OECPigeonIMU Gyro;
 	Timer AutoTimer;
 	Vision vision;
 	USSensor Usonic;

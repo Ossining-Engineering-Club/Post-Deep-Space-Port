@@ -9,12 +9,13 @@ LeftB(26, rev::CANSparkMax::MotorType::kBrushless),
 RightB(28, rev::CANSparkMax::MotorType::kBrushless),
 LWEncoder(LeftF, rev::SensorType::kHallSensor, 1),	// NOTE CHANGE THE ENCODER PORTS!!!!
 RWEncoder(RightF, rev::SensorType::kHallSensor, 1),
-Gyro(1),
+Gyro(30),
 AutoTimer(),
 vision(XRESOLUTION, YRESOLUTION),
 Usonic(UsonicPort)
 
 {
+	Gyro.ResetAngle();
 	LeftF.GetEncoder();
 	LeftB.GetEncoder();
 	RightF.GetEncoder();
@@ -23,9 +24,6 @@ Usonic(UsonicPort)
 	VisionX = 0.0;
 	LWEncoder.SetPositionConversionFactor(ENCODERCONST);
 	RWEncoder.SetPositionConversionFactor(ENCODERCONST);
-
-	Gyro.InitGyro();
-	Gyro.Reset();		// Gyro's only work on 0 and 1
 }
 
 void Tankdrive::Drive(float left, float right)
@@ -76,12 +74,12 @@ void Tankdrive::AutoDriveGyro(float distance, float speed, float TimeOut) //Args
 
 	LWEncoder.SetPosition(0.0);
 	RWEncoder.SetPosition(0.0);    //Reset Wheel Encoders
-	Gyro.Reset();
+	Gyro.ResetAngle();
 	Tankdrive::DirectDrive(speed, speed);		//Drives both motors at standard length
 
 	while((((fabs(LWEncoder.GetPosition()) + fabs(RWEncoder.GetPosition())) / 2) < distance) && AutoTimer.Get()<=TimeOut)
 	{								// was +							was -
-		Tankdrive::DirectDrive((speed-(fabs(speed))*AUTOGYROCONST*Gyro.GetAngle()), speed+(fabs(speed))*AUTOGYROCONST*Gyro.GetAngle());
+		Tankdrive::DirectDrive((speed-(fabs(speed))*AUTOGYROCONST*Gyro.GetYaw()), speed+(fabs(speed))*AUTOGYROCONST*Gyro.GetYaw());
 		Wait(0.001);
 	}
 	Tankdrive::DirectDrive(0.0,0.0);
@@ -101,7 +99,7 @@ void Tankdrive::AutoDriveGyro(float distance, float speed, float TimeOut, bool s
 	AutoTimer.Start();
 	LWEncoder.SetPosition(0.0);
 	RWEncoder.SetPosition(0.0);    //Reset Wheel Encoders
-	Gyro.Reset();
+	Gyro.ResetAngle();
 
 	Tankdrive::DirectDrive(speed, speed);		//Drives both motors at standard length
 	int i = 0;
@@ -109,7 +107,7 @@ void Tankdrive::AutoDriveGyro(float distance, float speed, float TimeOut, bool s
 	{								// was +							was -
 		if( i>=startms )dspeed=speed;
 		else dspeed = speed * (startfrac + (1-startfrac)*((float)i/(float)startms));
-		Tankdrive::DirectDrive((dspeed-(fabs(dspeed))*AUTOGYROCONST*Gyro.GetAngle()), dspeed+(fabs(dspeed))*AUTOGYROCONST*Gyro.GetAngle());
+		Tankdrive::DirectDrive((dspeed-(fabs(dspeed))*AUTOGYROCONST*Gyro.GetYaw()), dspeed+(fabs(dspeed))*AUTOGYROCONST*Gyro.GetYaw());
 		i++;
 		Wait(0.001);
 	}
@@ -128,12 +126,12 @@ void Tankdrive::AutoDriveGyroLimit(float distance, float speed, float TimeOut, D
 
 	LWEncoder.SetPosition(0.0);
 	RWEncoder.SetPosition(0.0);    //Reset Wheel Encoders
-	Gyro.Reset();
+	Gyro.ResetAngle();
 	Tankdrive::DirectDrive(speed, speed);		//Drives both motors at standard length
 
 	while((((fabs(LWEncoder.GetPosition()) + fabs(RWEncoder.GetPosition())) / 2) < distance) && AutoTimer.Get()<=TimeOut)
 	{								// was +							was -
-		Tankdrive::DirectDrive((speed-AUTOGYROCONST*Gyro.GetAngle()), speed+AUTOGYROCONST*Gyro.GetAngle());
+		Tankdrive::DirectDrive((speed-AUTOGYROCONST*Gyro.GetYaw()), speed+AUTOGYROCONST*Gyro.GetYaw());
 		if(!LimitLift.Get())
 			Lift.Set(AUTOLIFTPOWER);
 		else
@@ -211,15 +209,15 @@ void Tankdrive::AutoTurnGyroBoth(float angle, float speed, float TimeOut)	 //Arg
 	AutoTimer.Reset(); AutoTimer.Start();
 	LWEncoder.SetPosition(0.0);
 	RWEncoder.SetPosition(0.0);    //Reset Wheel Encoders
-	Gyro.Reset();
+	Gyro.ResetAngle();
 	if(speed>1)speed=1;
 	else if(speed<-1)speed=-1;				// was -	was +
 	if (angle > 0.0) Tankdrive::DirectDrive(speed, -1.0 * speed);
 	else Tankdrive::DirectDrive(-1.0 * speed, speed);
 
-	while (fabs(Gyro.GetAngle()) <= fabs(angle)  && AutoTimer.Get() <= TimeOut)	//When the gyroscope gives a reading below/equal to 45
+	while (fabs(Gyro.GetYaw()) <= fabs(angle)  && AutoTimer.Get() <= TimeOut)	//When the gyroscope gives a reading below/equal to 45
 	{
-/*		if((diff=(fabs(angle)-fabs(Gyro.GetAngle()))/ANGTOLERANCE <= 1.0))
+/*		if((diff=(fabs(angle)-fabs(Gyro.GetYaw()))/ANGTOLERANCE <= 1.0))
 		{
 				if (angle > 0.0) Tankdrive::DirectDrive(speed * diff, -1.0 * speed * diff);
 				else Tankdrive::DirectDrive(-1.0 * speed * diff, speed * diff);
@@ -236,7 +234,7 @@ void Tankdrive::AutoTurnGyro(float angle, float speed, float TimeOut)	 //Args ar
 	AutoTimer.Reset(); AutoTimer.Start();
 	LWEncoder.SetPosition(0.0);
 	RWEncoder.SetPosition(0.0);    //Reset Wheel Encoders
-	Gyro.Reset();
+	Gyro.ResetAngle();
 	if(speed>1)speed=1;
 	else if(speed<-1)speed=-1;				// was -	was +
 	if (angle * speed > 0.0)
@@ -246,9 +244,9 @@ void Tankdrive::AutoTurnGyro(float angle, float speed, float TimeOut)	 //Args ar
 	else
 		return;
 
-	while (fabs(Gyro.GetAngle()) <= fabs(angle)  && AutoTimer.Get() <= TimeOut)	//When the gyroscope gives a reading below/equal to 45
+	while (fabs(Gyro.GetYaw()) <= fabs(angle)  && AutoTimer.Get() <= TimeOut)	//When the gyroscope gives a reading below/equal to 45
 	{
-	/*	if((diff=(fabs(angle)-fabs(Gyro.GetAngle()))/ANGTOLERANCE <= 1.0))
+	/*	if((diff=(fabs(angle)-fabs(Gyro.GetYaw()))/ANGTOLERANCE <= 1.0))
 		{
 			if (angle * speed > 0.0) Tankdrive::DirectDrive(speed * diff, 0.0);
 			else Tankdrive::DirectDrive(0.0, speed * diff);
@@ -269,7 +267,7 @@ void Tankdrive::AutoDriveGyroUS(float USrange, float speed, float Maxdistance) /
 	AutoTimer.Reset(); AutoTimer.Start();
 	LWEncoder.SetPosition(0.0);
 	RWEncoder.SetPosition(0.0);    //Reset Wheel Encoders
-	Gyro.Reset();
+	Gyro.ResetAngle();
 	Tankdrive::DirectDrive(speed, speed);		//Drives both motors at standard length
 
 	if (Usonic.GetRange() < 15) USGood=0;
@@ -277,7 +275,7 @@ void Tankdrive::AutoDriveGyroUS(float USrange, float speed, float Maxdistance) /
 	while(((((fabs(LWEncoder.GetPosition()) + fabs(RWEncoder.GetPosition())) / 2) < Maxdistance)
 			&& (Usonic.GetRange() > USrange  || !USGood)) && AutoTimer.Get()<=AUTOTIMEMAX)
 	{
-		Tankdrive::DirectDrive(speed-AUTOGYROCONST*Gyro.GetAngle(), speed+AUTOGYROCONST*Gyro.GetAngle());
+		Tankdrive::DirectDrive(speed-AUTOGYROCONST*Gyro.GetYaw(), speed+AUTOGYROCONST*Gyro.GetYaw());
 		Usonic.GetSample();
 		Wait(TIMEPERIOD);
 	}
@@ -302,12 +300,12 @@ void Tankdrive::ResetEncoders()
 
 void Tankdrive::ResetGyro()
 {
-	Gyro.Reset();
+	Gyro.ResetAngle();
 }
 
 double Tankdrive::GetAngle()
 {
-	return Gyro.GetAngle();
+	return Gyro.GetYaw();
 }
 
 void Tankdrive::GetUSSample()
