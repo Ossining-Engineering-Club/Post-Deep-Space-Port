@@ -9,14 +9,17 @@
  
  #include <frc/WPILib.h>
  #include "Tankdrive.h"
+ #include "Constants.h"
 
 using namespace frc;
 
 class Robot : public frc::TimedRobot {
  private:
+  cs::UsbCamera msLifeCam1;
   Tankdrive tankdrive;
   Joystick stickLeft;
   Joystick stickRight;
+  Victor ledRing;
  public:
   Robot();
   void RobotInit() override;

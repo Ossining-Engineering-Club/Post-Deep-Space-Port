@@ -3,7 +3,8 @@
 
 Vision::Vision(unsigned int ResX, unsigned int ResY)
 {
-	Table = NetworkTable::GetTable("GRIP/myContoursReport");		// this function may change with WPIlib updates
+	auto inst = nt::NetworkTableInstance::GetDefault();
+	Table = inst.GetTable("GRIP/myContoursReport");	
 	found = false;
 	this->ResX = ResX;
 	this->ResY = ResY;

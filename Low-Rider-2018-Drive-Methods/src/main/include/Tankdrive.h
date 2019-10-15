@@ -13,6 +13,7 @@ public: // for functions
 	Tankdrive(unsigned int UsonicPort);
 	void Drive(float left, float right);
 	void DirectDrive(float left, float right);
+	void DirectDrivePID(float left, float right, float minLoopTimeMs);
 	void SetThrottle(float Ithrottle);
 
 	void AutoDriveGyro(float distance, float speed, float TimeOut);

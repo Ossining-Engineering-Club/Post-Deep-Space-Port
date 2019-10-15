@@ -57,6 +57,9 @@ void Tankdrive::DirectDrive(float left, float right)
 	RightF.Set(right * -1.0);
 	RightB.Set(right * -1.0);
 }
+void Tankdrive::DirectDrivePID(float right, float left, float minLoopTimeMs){
+	
+}
 void Tankdrive::SetThrottle(float Ithrottle)
 {
 	throttle = (1 - Ithrottle) / 2;
