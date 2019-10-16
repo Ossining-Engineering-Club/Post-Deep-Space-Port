@@ -21,11 +21,16 @@ void Robot::AutonomousInit() {
 }
 
 void Robot::AutonomousPeriodic() {
+    if(stickRight.GetTrigger()){
     tankdrive.AutoDriveVision(12.0, 0.2, 96.0, 15.0);
+    }
+    tankdrive.SetThrottle(stickLeft.GetZ());
+    tankdrive.Drive(stickLeft.GetY(), stickRight.GetY());
+
 }
 
 void Robot::TeleopInit() {
-    ledRing.Set(0.0);ki9
+    ledRing.Set(0.0);
 }
 
 void Robot::TeleopPeriodic() {

@@ -134,11 +134,6 @@ void Tankdrive::AutoDriveGyroLimit(float distance, float speed, float TimeOut, D
 
 	while((((fabs(LWEncoder.GetPosition()) + fabs(RWEncoder.GetPosition())) / 2) < distance) && AutoTimer.Get()<=TimeOut)
 	{								// was +							was -
-		Tankdrive::DirectDrive((speed-AUTOGYROCONST*Gyro.GetYaw()), speed+AUTOGYROCONST*Gyro.GetYaw());
-		if(!LimitLift.Get())
-			Lift.Set(AUTOLIFTPOWER);
-		else
-			Lift.Set(AUTOLIFTCONST);
 		Wait(0.001);
 	}
 	Tankdrive::DirectDrive(0.0,0.0);

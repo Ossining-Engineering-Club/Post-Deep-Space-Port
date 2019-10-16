@@ -11,9 +11,9 @@
 
 //PID Constants
 #define TIMEPERIOD 0.00001
-#define PCONSTANT 0.006
-#define ICONSTANT 0.025	// was 300
-#define DCONSTANT 0		// was 0.000125
+#define PCONSTANT -0.006
+#define ICONSTANT -0.025	// was 300
+#define DCONSTANT -0		// was 0.000125
 
 
 // VISION
@@ -25,6 +25,7 @@
 #define AUTODRIVEVISION 0.3
 
 #define AUTOVISIONSPEED	0.36		// check this value!!!
+#define AUTOTIMEMAX 15.0
 
 // for camera values
 #define XRESOLUTION	320
