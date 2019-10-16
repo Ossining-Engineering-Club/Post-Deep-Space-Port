@@ -10,15 +10,27 @@
  #include <frc/WPILib.h>
  #include "Tankdrive.h"
  #include "Constants.h"
+ #include "Arm.h"
+ #include "Stilts.h"
+ #include "Intake.h"
+ #include "Lift.h"
+ #include "OECJoystick.h"
 
 using namespace frc;
 
 class Robot : public frc::TimedRobot {
  private:
   cs::UsbCamera msLifeCam1;
+  SmartDashboard *dash;
   Tankdrive tankdrive;
-  Joystick stickLeft;
-  Joystick stickRight;
+  Arm arm;
+  Intake intake;
+  Lift lift;
+  Stilts stilts;
+
+  OECJoystick stickLeft;
+  OECJoystick stickRight;
+  OECJoystick stickUtil;
   Victor ledRing;
  public:
   Robot();

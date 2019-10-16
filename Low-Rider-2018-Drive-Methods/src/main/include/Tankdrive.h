@@ -14,6 +14,7 @@ public: // for functions
 	void Drive(float left, float right);
 	void DirectDrive(float left, float right);
 	void DirectDrivePID(float left, float right, float minLoopTimeMs);
+	int TeleDriveVision(float USrange, float speed, float bias, bool enable);
 	void SetThrottle(float Ithrottle);
 
 	void AutoDriveGyro(float distance, float speed, float TimeOut);
@@ -56,4 +57,13 @@ private: // for variables
 	USSensor Usonic;
 	float VisionX;
 	float throttle;
+
+	//Vision:
+	int returnC;
+	float Sample, LastSample;
+	float Integral;
+	float Derivative;
+	float Turn;
+	bool USGood;
+
 };
