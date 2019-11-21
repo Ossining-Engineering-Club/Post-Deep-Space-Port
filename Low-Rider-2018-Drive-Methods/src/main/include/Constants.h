@@ -7,7 +7,7 @@
 // Sensor constants
 #define AUTOGYROCONST 0.06			// was .07273 // was 0.016
 #define ANGTOLERANCE 5.0
-#define ENCODERCONST 0.0649026
+#define ENCODERCONST 2.44
 
 //PID Constants
 #define TIMEPERIOD 0.00001

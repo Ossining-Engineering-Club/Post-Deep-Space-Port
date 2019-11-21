@@ -7,7 +7,7 @@ LeftF(25, rev::CANSparkMax::MotorType::kBrushless),
 RightF(27, rev::CANSparkMax::MotorType::kBrushless),
 LeftB(26, rev::CANSparkMax::MotorType::kBrushless),
 RightB(28, rev::CANSparkMax::MotorType::kBrushless),
-LWEncoder(LeftF, rev::SensorType::kHallSensor, 1),	// NOTE CHANGE THE ENCODER PORTS!!!!
+LWEncoder(LeftF, rev::SensorType::kHallSensor, 1),	
 RWEncoder(RightF, rev::SensorType::kHallSensor, 1),
 Gyro(30),
 AutoTimer(),
@@ -22,7 +22,7 @@ Usonic(UsonicPort)
 	RightB.GetEncoder();
 	throttle = 0.0;
 	VisionX = 0.0;
-	LWEncoder.SetPositionConversionFactor(ENCODERCONST);
+	LWEncoder.SetPositionConversionFactor(-1.0 * ENCODERCONST);
 	RWEncoder.SetPositionConversionFactor(ENCODERCONST);
 }
 
