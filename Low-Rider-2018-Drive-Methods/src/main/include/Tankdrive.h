@@ -5,6 +5,7 @@
 #include "Ultrasonic.h"
 #include "OECPigeonIMU.h"
 #include "Vision.h"
+#include "Limelight.h"
 
 using namespace frc;
 class Tankdrive
@@ -13,7 +14,8 @@ public: // for functions
 	Tankdrive(unsigned int UsonicPort);
 	void Drive(float left, float right);
 	void DirectDrive(float left, float right);
-	void DirectDrivePID(float left, float right, float minLoopTimeMs);
+	void DirectDrivePID(float left, float right, float minLoopTimeMs, bool reset);
+	int TeleDriveVision(float USrange, float speed, float bias, bool enable);
 	int TeleDriveVision(float USrange, float speed, float bias, bool enable);
 	void SetThrottle(float Ithrottle);
 
@@ -25,6 +27,7 @@ public: // for functions
 	void AutoTurnGyro(float angle, float speed, float TimeOut);
 	void AutoDriveGyroUS(float, float, float);
 	int AutoDriveVision(float USrange, float speed, float Maxdistance, float TimeOut);
+	int AutoDriveLimelight(float USrange, float speed, float Maxdistance, float TimeOut);
 
 	bool IsLimit();
 
@@ -49,6 +52,7 @@ private:
 	OECPigeonIMU Gyro;
 	Timer AutoTimer;
 	Vision vision;
+	Limelight limelight;
 	USSensor Usonic;
 	float VisionX;
 	float throttle;
