@@ -36,18 +36,13 @@ public: // for functions
 	double GetAngle();
 	void GetUSSample();
 	double GetUSRange();
-private: // for variables
-//	Spark Left;	// change back fro worlds
-//	Spark Right;
+private: 
 	rev::CANSparkMax LeftF;
 	rev::CANSparkMax RightF;
 	rev::CANSparkMax LeftB;
 	rev::CANSparkMax RightB;
 
-//	VictorSP Left;
-//	VictorSP Right;
-//	Encoder LWEncoder;
-//	Encoder RWEncoder;
+
 	rev::CANEncoder LWEncoder;
 	rev::CANEncoder RWEncoder;
 //	AnalogGyro Gyro;

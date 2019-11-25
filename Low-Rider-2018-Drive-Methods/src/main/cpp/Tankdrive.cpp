@@ -18,8 +18,7 @@ Usonic(UsonicPort)
 	Gyro.ResetAngle();
 	LeftF.GetEncoder();
 	LeftB.GetEncoder();
-	RightF.GetEncoder();
-	RightB.GetEncoder();
+	RightF.GetEncoder();	RightB.GetEncoder();
 	throttle = 0.0;
 	VisionX = 0.0;
 	LWEncoder.SetPositionConversionFactor(ENCODERCONST);
@@ -62,6 +61,7 @@ void Tankdrive::DirectDrivePID(float right, float left, float minLoopTimeMs){
 }
 bool lastEnable = false;
 double LastTime = 0.0;
+double Time = 0.0;
 int Tankdrive::TeleDriveVision(float USrange, float speed, float bias, bool enable){
 
 	speed *= -1.0;
@@ -95,12 +95,12 @@ int Tankdrive::TeleDriveVision(float USrange, float speed, float bias, bool enab
 	}
 	if(enable && (Usonic.GetRange() > USrange  || !USGood)){
 		vision.Update();
-		double Time = AutoTimer.Get();
+		Time = AutoTimer.Get();
 		if (vision.GetNumContours() != 0)
 		{
 			if (vision.GetNumContours() == 1) VisionX = vision.GetX(0);
 			else VisionX = (vision.GetX(0) + vision.GetX(1)) /2;
-			Sample = VisionX - (XRESOLUTION* (1-bias/2));					//map a bias of 1 to the left quarter and -1 to the right quarter of the image
+			Sample = VisionX - ((XRESOLUTION/2) * (1-bias/2));		//map a bias of 1 to the left quarter and -1 to the right quarter of the image
 			Integral = Integral + ((Time-LastTime)/2)*(Sample+LastSample);
 		    Derivative = (Sample - LastSample)/(Time-LastTime);
 		    // If Sample, Integral and Derivative are 0, then we want go with speed on each side
@@ -116,11 +116,15 @@ int Tankdrive::TeleDriveVision(float USrange, float speed, float bias, bool enab
 			Tankdrive::DirectDrive(speed,speed); //Needed to prevent crash
 		Usonic.GetSample();
 	}
-	if ((Usonic.GetRange() <= USrange ))
+	if ((Usonic.GetRange() <= USrange) && enable){
 		returnC = 2;
+		Tankdrive::DirectDrive(0.0,0.0);
+	}
 	if(!enable){
 		returnC = 4;
 	}
+	LastTime = Time;
+	return returnC;
 }
 void Tankdrive::SetThrottle(float Ithrottle)
 {

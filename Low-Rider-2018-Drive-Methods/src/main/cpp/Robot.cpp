@@ -24,7 +24,17 @@ void Robot::RobotInit()
 }
 
 void Robot::AutonomousInit() {
+    Timer* autonomousTimer = new Timer();
+    autonomousTimer->Reset();
     ledRing.Set(LED_VALUE);
+    tankdrive.AutoDriveVision(8.0, 0.2, 96.0, 24.0);
+    autonomousTimer->Start();
+    while(autonomousTimer->Get() < 4.0){
+        arm.SetToPosition(0.4, ARM_CARGO1_POS);
+    }
+    intake.SetPower(0.5);
+    Wait(1.0);
+    intake.SetPower(0.0);
 }
 
 void Robot::AutonomousPeriodic() {
@@ -50,9 +60,13 @@ void Robot::TeleopPeriodic() {
 
     //Select Vision or normal driving
     if(stickRight.GetTrigger()){
-        visionEnd = tankdrive.TeleDriveVision(16, stickRight.GetY(), stickRight.GetX(), stickRight.GetTrigger());
+        ledRing.Set(LED_VALUE);
     }
     else{
+        ledRing.Set(0.0);
+    }
+    visionEnd = tankdrive.TeleDriveVision(8.0, 0.3*stickRight.GetY(), stickRight.GetX(), stickRight.GetTrigger());
+    if(!stickRight.GetTrigger()){
         tankdrive.Drive(stickLeft.GetY(), stickRight.GetY());
     }
 
@@ -72,8 +86,8 @@ void Robot::TeleopPeriodic() {
         armMode = 3;
     else if(stickUtil.GetButton(8))
         armMode = 4;
-    else if(visionEnd == 2)
-        armMode = 5;
+    /*else if(visionEnd == 2)
+        armMode = 5;*/
 
     if(armMode == 0){
         
@@ -108,8 +122,8 @@ void Robot::TeleopPeriodic() {
         lift.SetToPosition(0.55, LIFT_LEV_3_POS);
     }
     else if(armMode == 5){
-        arm.SetToPosition(0.4, ARM_CARGO1_POS);
-        lift.SetToPosition(0.3, LIFT_CARGO1_POS);
+        //arm.SetToPosition(0.4, ARM_CARGO1_POS);
+        //lift.SetToPosition(0.3, LIFT_CARGO1_POS);
     }
 
 }
