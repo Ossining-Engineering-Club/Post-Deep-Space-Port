@@ -15,6 +15,7 @@
  #include "Intake.h"
  #include "Lift.h"
  #include "OECJoystick.h"
+ #include "Limelight.h"
 
 using namespace frc;
 
@@ -23,6 +24,7 @@ class Robot : public frc::TimedRobot {
   cs::UsbCamera msLifeCam1;
   SmartDashboard *dash;
   Tankdrive tankdrive;
+  Limelight limelight;
   Arm arm;
   Intake intake;
   Lift lift;

@@ -44,7 +44,7 @@
 #define ARM_HOLD_POS -70.0
 #define ARM_LEV_2_POS -29.0
 #define ARM_LEV_3_POS -17.2
-#define ARM_CARGO1_POS -34.8
+#define ARM_CARGO1_POS -57.0
 
 //Lift:
 #define LIFT_PROP 0.01

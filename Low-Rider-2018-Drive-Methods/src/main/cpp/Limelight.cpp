@@ -3,53 +3,48 @@
 
 Limelight::Limelight()
 {
-	auto inst = nt::NetworkTableInstance::GetDefault();
-	Table = inst.GetTable("limelight");	
-	found = false;
-	this->ResX = ResX;
-	this->ResY = ResY;
-	FullImageArea = this->ResX * this->ResY;
+	Table = nt::NetworkTableInstance::GetDefault().GetTable("limelight");
 }
 
 void Limelight::Update()
 {
-	tv = Table ->GetNumberArray("tv", wpi::ArrayRef<double>());
-	area = Table->GetNumberArray("ta", wpi::ArrayRef<double>());
-	X = Table->GetNumberArray("tx", wpi::ArrayRef<double>());
-	Y = Table->GetNumberArray("ty", wpi::ArrayRef<double>());
-	Height = Table->GetNumberArray("tvert", wpi::ArrayRef<double>());
-	Width = Table->GetNumberArray("thor", wpi::ArrayRef<double>());
+	tv = Table->GetNumber("tv", 0.0);
+	area = Table->GetNumber("ta", 0.0);
+	X = Table->GetNumber("tx", 0.0);
+	Y = Table->GetNumber("ty", 0.0);
+	Height = Table->GetNumber("tvert", 0.0);
+	Width = Table->GetNumber("thor", 0.0);
 }
 
 
-bool Limelight::IsTargetFound()
+double Limelight::IsTargetFound()
 {
-	return tv[0];
+	return tv;
 }
 
 double Limelight::GetArea()
 {
 
-	return area[0];
+	return area;
 }
 
 double Limelight::GetXOffset()
 {
-	return X[0];
+	return X;
 }
 
 double Limelight::GetYOffset()
 {
-	return Y[0];
+	return Y;
 }
 double Limelight::GetHeight()
 {
-	return Height[0];
+	return Height;
 }
 
 double Limelight::GetWidth()
 {
-	return Width[0];
+	return Width;
 }
 
 

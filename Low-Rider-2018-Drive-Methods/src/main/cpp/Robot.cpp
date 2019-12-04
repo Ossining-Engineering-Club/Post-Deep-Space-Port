@@ -2,6 +2,7 @@
 
 Robot::Robot():
     tankdrive(0),
+    limelight(),
     arm(dash),
     intake(),
     lift(dash),
@@ -26,10 +27,9 @@ void Robot::RobotInit()
 void Robot::AutonomousInit() {
     Timer* autonomousTimer = new Timer();
     autonomousTimer->Reset();
-    ledRing.Set(LED_VALUE);
-    tankdrive.AutoDriveVision(8.0, 0.2, 96.0, 24.0);
+    tankdrive.AutoDriveLimelight(25.0, 0.2, 120, 24.0);
     autonomousTimer->Start();
-    while(autonomousTimer->Get() < 4.0){
+    while(autonomousTimer->Get() < 2.5){
         arm.SetToPosition(0.4, ARM_CARGO1_POS);
     }
     intake.SetPower(0.5);
@@ -38,7 +38,9 @@ void Robot::AutonomousInit() {
 }
 
 void Robot::AutonomousPeriodic() {
-
+    limelight.Update();
+    dash->PutNumber("US Range", tankdrive.GetUSRange());
+    dash->PutNumber("Vision X", limelight.GetXOffset());
 }
 
 void Robot::TeleopInit() {
