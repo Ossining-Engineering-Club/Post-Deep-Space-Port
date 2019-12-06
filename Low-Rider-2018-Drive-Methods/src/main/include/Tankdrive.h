@@ -16,6 +16,7 @@ public: // for functions
 	void Drive(float left, float right);
 	void DirectDrive(float left, float right);
 	int DirectDrivePID(float leftRPM, float rightRPM, bool reset); // 0 - PID ran on neither, 1 - PID ran on right only, 2 - PID ran on left only, 3 - PID ran on both
+	void DrivePositionPID(float leftPos, float rightPos, float RPM);
 	int TeleDriveVision(float USrange, float speed, float bias, bool enable);
 	int TeleDriveLimelight(float USrange, float speed, float bias, bool enable);
 	void SetThrottle(float Ithrottle);
@@ -61,6 +62,9 @@ private:
 	OECPIDController ldbSpeedController;
 	OECPIDController rdbSpeedController;
 	Timer RPMTimer;
+
+	OECPIDController ldbPosController;
+	OECPIDController rdbPosController;
 
 	//Vision:
 	int returnC;

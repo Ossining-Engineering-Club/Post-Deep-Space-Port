@@ -16,6 +16,8 @@ limelight(),
 Usonic(UsonicPort),
 ldbSpeedController(),
 rdbSpeedController(),
+ldbPosController(),
+rdbPosController(),
 RPMTimer()
 
 {
@@ -142,6 +144,37 @@ int Tankdrive::DirectDrivePID(float left, float right, bool reset){
 		Tankdrive::DriveL(rdbSpeedController.GetCorrection(errorL) +left / DB_FREE_SPEED);
 	
 	return (int)ranr + (int)ranl * 2;
+}
+
+int rightCount = 1;
+int leftCount = 1;
+double lRPM = 0.0;
+double rRPM = 0.0;
+void Tankdrive::DrivePositionPID(float leftPos, float rightPos, float RPM){
+	double currLeft = Tankdrive::GetLEncoder();
+	double currRight = Tankdrive::GetREncoder();
+	double errorL = currLeft - leftPos;
+	double errorR = currRight - rightPos;
+	if(lefttCount == 10)
+		lRPM = ldbPosController.GetCorrection(errorL) + RPM;
+	if(rightCount == 10)
+		rRPM = rdbPosController.GetCorrection(errorR) + RPM;
+
+	int loopStatus = DirectDrivePID(lRPM, rRPM);
+
+	if(loopStatus == 1)
+		rightCount++;
+	if(loopStatus == 2)
+		leftCount++;
+	if(loopStatus == 3){
+		rightCount++;
+		leftCount++;
+
+	if(rightCount > 10)
+		rightCount == 1
+	if(leftCount > 10)
+		leftCOunt == 1;
+	}
 }
 
 bool lastEnable = false;
