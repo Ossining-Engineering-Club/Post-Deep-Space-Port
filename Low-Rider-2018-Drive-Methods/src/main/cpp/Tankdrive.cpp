@@ -13,9 +13,15 @@ Gyro(30),
 AutoTimer(),
 vision(XRESOLUTION, YRESOLUTION),
 limelight(),
-Usonic(UsonicPort)
+Usonic(UsonicPort),
+ldbSpeedController(),
+rdbSpeedController(),
+RPMTimer()
 
 {
+	RPMTimer.Start();
+	ldbSpeedController.SetConstants(DBS_P, DBS_I, DBS_D, DBS_MAX);
+	rdbSpeedController.SetConstants(DBS_P, DBS_I, DBS_D, DBS_MAX);
 	Gyro.ResetAngle();
 	LeftF.GetEncoder();
 	LeftB.GetEncoder();
@@ -57,9 +63,87 @@ void Tankdrive::DirectDrive(float left, float right)
 	RightF.Set(right * -1.0);
 	RightB.Set(right * -1.0);
 }
-void Tankdrive::DirectDrivePID(float left, float right, float minLoopTimeMs, bool reset){
-	
+
+void Tankdrive::DriveR(double power){
+	if(power > 1.0){
+		power = 1.0;
+	}
+	if(power < 1.0){
+		power = 1.0;
+	}
+	RightF.Set(power * -1.0);
+	RightB.Set(power * 1.0);
 }
+void Tankdrive::DriveL(double power){
+	if(power > 1.0){
+		power = 1.0;
+	}
+	if(power < 1.0){
+		power = 1.0;
+	}
+	LeftF.Set(power);
+	LeftB.Set(power);
+}
+
+double rLastPosition;
+double lLastPosition;
+double rTimeLastChange;
+double lTimerLastChange;
+double lastTime;
+int Tankdrive::DirectDrivePID(float left, float right, bool reset){
+	bool ranl = false;
+	bool ranr = false;
+	double currTime = RPMTimer.Get();
+	double rRPM = 0.0;
+	double lRPM = 0.0;
+	double rPosition = Tankdrive::GetREncoder()/ENCODERCONST;
+	double lPosition = Tankdrive::GetLEncoder()/ENCODERCONST;
+	double errorR = 0.0;
+	double errorL = 0.0;
+
+	if(reset){
+		ldbSpeedController.ResetController();
+		rdbSpeedController.ResetController();
+		lastTime = currTime;
+		rLastPosition = rPosition;
+		lLastPosition = lPosition;
+	}
+
+	if(rLastPosition != rPosition){
+		rRPM = (rPosition - rLastPosition)/(currTime - rTimeLastChange);
+		ranr = true;
+	}
+	else if(currTime - rTimeLastChange >= 0.0125){
+		rRPM = 0.0;
+		ranr = true;
+	}
+	else{
+		ranr = false;
+	}
+
+	if(lLastPosition != lPosition){
+		lRPM = (lPosition - lLastPosition)/(currTime - lTimeLastChange);
+		ranl = true;
+	}
+	else if(currTime - lTimeLastChange >= 0.0125){ //If speed is less than ~30 rpm assume zero to keep outer loop times fast.
+		lRPM = 0.0;
+		ranl = true;
+	}
+	else{
+		ranl = false;
+	}
+
+	errorR = rRPM - right;
+	errorL = lRPM - left;
+
+	if(ranr)
+		Tankdrive::DriveR(rdbSpeedController.GetCorrection(errorR) + right / DB_FREE_SPEED);
+	if(ranl)
+		Tankdrive::DriveL(rdbSpeedController.GetCorrection(errorL) +left / DB_FREE_SPEED);
+	
+	return (int)ranr + (int)ranl * 2;
+}
+
 bool lastEnable = false;
 double LastTime = 0.0;
 double Time = 0.0;

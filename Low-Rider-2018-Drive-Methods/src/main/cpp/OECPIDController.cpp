@@ -13,7 +13,17 @@ pidTimer()
     lastError = 0.0;
     lastTime = 0.0;
 }
+void OECPIDController::ResetController(){
+    isFirstRun = true;
+    P = 0.0;
+    I = 0.0;
+    D = 0.0;
+    correction = 0.0;
+    lastError = 0.0;
+    lastTime = 0.0;
 
+    pidTimer.Reset();    
+}
 void OECPIDController::SetConstants(double coefP, double coefI, double coefD, double MaximumCorrection)
 {
     kP = coefP;

@@ -6,6 +6,7 @@
 #include "OECPigeonIMU.h"
 #include "Vision.h"
 #include "Limelight.h"
+#include "OECPIDController.h"
 
 using namespace frc;
 class Tankdrive
@@ -14,7 +15,7 @@ public: // for functions
 	Tankdrive(unsigned int UsonicPort);
 	void Drive(float left, float right);
 	void DirectDrive(float left, float right);
-	void DirectDrivePID(float left, float right, float minLoopTimeMs, bool reset);
+	int DirectDrivePID(float leftRPM, float rightRPM, bool reset); // 0 - PID ran on neither, 1 - PID ran on right only, 2 - PID ran on left only, 3 - PID ran on both
 	int TeleDriveVision(float USrange, float speed, float bias, bool enable);
 	int TeleDriveLimelight(float USrange, float speed, float bias, bool enable);
 	void SetThrottle(float Ithrottle);
@@ -56,6 +57,10 @@ private:
 	USSensor Usonic;
 	float VisionX;
 	float throttle;
+
+	OECPIDController ldbSpeedController;
+	OECPIDController rdbSpeedController;
+	Timer RPMTimer;
 
 	//Vision:
 	int returnC;

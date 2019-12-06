@@ -4,6 +4,7 @@
 class OECPIDController{
     public:
         OECPIDController();
+        void ResetController();
         void SetConstants(double coefP, double coefI, double coefD, double MaximumCorrection);
         void SetIntegral(double IVal);
         double GetCorrection(double error);
