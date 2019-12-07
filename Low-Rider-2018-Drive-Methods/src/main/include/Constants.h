@@ -56,3 +56,17 @@
 #define LIFT_CARGO1_POS 0.0
 #define MINLIFT 65.0 //Was 40.0
 #define MAXLIFT 920.0 //975.5 is the abolute top
+
+#define DB_FREE_SPEED 5880.0
+
+#define DBS_P 0.0
+#define DBS_I 0.0
+#define DBS_D 0.0
+#define DBS_MAX 1.0
+
+#define DBP_P 0.0
+#define DBP_I 0.0
+#define DBP_D 0.0
+#define DBP_MAX 5880
+
+#define PATH_DT 0.01

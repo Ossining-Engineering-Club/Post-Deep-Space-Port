@@ -12,5 +12,8 @@
     ".project": true
   },
   "C_Cpp.default.configurationProvider": "vscode-wpilib",
-  "wpilib.autoStartRioLog": false
+  "wpilib.autoStartRioLog": false,
+  "files.associations": {
+    "vector": "cpp"
+  }
 }

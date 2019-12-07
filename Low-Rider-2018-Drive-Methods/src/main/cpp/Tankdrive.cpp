@@ -24,6 +24,8 @@ RPMTimer()
 	RPMTimer.Start();
 	ldbSpeedController.SetConstants(DBS_P, DBS_I, DBS_D, DBS_MAX);
 	rdbSpeedController.SetConstants(DBS_P, DBS_I, DBS_D, DBS_MAX);
+	ldbPosController.SetConstants(DBP_P, DBP_I, DBP_D, DBP_MAX);
+	rdbPosController.SetConstants(DBP_P, DBP_I, DBP_D, DBP_MAX);
 	Gyro.ResetAngle();
 	LeftF.GetEncoder();
 	LeftB.GetEncoder();
@@ -87,35 +89,42 @@ void Tankdrive::DriveL(double power){
 	LeftB.Set(power);
 }
 
+//Variables for RPM PIDs
 double rLastPosition;
 double lLastPosition;
 double rTimeLastChange;
-double lTimerLastChange;
+double lTimeLastChange;
 double lastTime;
+
 int Tankdrive::DirectDrivePID(float left, float right, bool reset){
-	bool ranl = false;
-	bool ranr = false;
+	bool ranl = false; //Variable to tell if the left side PID ran
+	bool ranr = false; //Variable to tell if the right side PID ran
 	double currTime = RPMTimer.Get();
 	double rRPM = 0.0;
 	double lRPM = 0.0;
-	double rPosition = Tankdrive::GetREncoder()/ENCODERCONST;
-	double lPosition = Tankdrive::GetLEncoder()/ENCODERCONST;
+	double rPosition = Tankdrive::GetREncoder()/ENCODERCONST; //Conversion from inches to rotations
+	double lPosition = Tankdrive::GetLEncoder()/ENCODERCONST; //Conversion from inches to rotations
 	double errorR = 0.0;
 	double errorL = 0.0;
 
+	//Resets controllers, encoders, and variables between uses
 	if(reset){
 		ldbSpeedController.ResetController();
 		rdbSpeedController.ResetController();
 		lastTime = currTime;
 		rLastPosition = rPosition;
 		lLastPosition = lPosition;
+		Tankdrive::ResetEncoders();
+		DirectDrive(left, right);
 	}
 
+	//If the right encoder position changed from last time calculate RPM and set the right PID to run
 	if(rLastPosition != rPosition){
 		rRPM = (rPosition - rLastPosition)/(currTime - rTimeLastChange);
 		ranr = true;
 	}
-	else if(currTime - rTimeLastChange >= 0.0125){
+	//If speed is less than ~40 rpm (1.6 in/s) assume zero speed and run the PID to keep the update rate fast
+	else if(currTime - rTimeLastChange >= 0.036){
 		rRPM = 0.0;
 		ranr = true;
 	}
@@ -123,11 +132,12 @@ int Tankdrive::DirectDrivePID(float left, float right, bool reset){
 		ranr = false;
 	}
 
+	//Same code as above for the left side
 	if(lLastPosition != lPosition){
 		lRPM = (lPosition - lLastPosition)/(currTime - lTimeLastChange);
 		ranl = true;
 	}
-	else if(currTime - lTimeLastChange >= 0.0125){ //If speed is less than ~30 rpm assume zero to keep outer loop times fast.
+	else if(currTime - lTimeLastChange >= 0.036){ 
 		lRPM = 0.0;
 		ranl = true;
 	}
@@ -135,33 +145,48 @@ int Tankdrive::DirectDrivePID(float left, float right, bool reset){
 		ranl = false;
 	}
 
+	//Calculate left and right speed error
 	errorR = rRPM - right;
 	errorL = lRPM - left;
 
-	if(ranr)
+	//Run the PID if a new RPM has been calculated for each side
+	if(ranr &&!reset)
 		Tankdrive::DriveR(rdbSpeedController.GetCorrection(errorR) + right / DB_FREE_SPEED);
-	if(ranl)
+	if(ranl && !reset)
 		Tankdrive::DriveL(rdbSpeedController.GetCorrection(errorL) +left / DB_FREE_SPEED);
 	
-	return (int)ranr + (int)ranl * 2;
+	return (int)ranr + (int)ranl * 2; //return a value 0-3 for which PIDs ran. 0 = none 1 = right only 2 = left only 3 = both
 }
 
+
+//Variables for position PIDs
 int rightCount = 1;
 int leftCount = 1;
-double lRPM = 0.0;
-double rRPM = 0.0;
-void Tankdrive::DrivePositionPID(float leftPos, float rightPos, float RPM){
+void Tankdrive::DrivePositionPID(float leftPos, float rightPos, float lRPM, float rRPM, bool reset){
+	
+	//reset variables and controllers between uses
+	if(reset){
+		rightCount = 1;
+		leftCount = 1;
+		ldbPosController.ResetController();
+		rdbPosController.ResetController();
+	}
+
 	double currLeft = Tankdrive::GetLEncoder();
 	double currRight = Tankdrive::GetREncoder();
+
 	double errorL = currLeft - leftPos;
 	double errorR = currRight - rightPos;
-	if(lefttCount == 10)
-		lRPM = ldbPosController.GetCorrection(errorL) + RPM;
+
+	//Update RPM setpoints for every 10 runs of RPM PIDs.
+	if(leftCount == 10)
+		lRPM += ldbPosController.GetCorrection(errorL);
 	if(rightCount == 10)
-		rRPM = rdbPosController.GetCorrection(errorR) + RPM;
+		rRPM += rdbPosController.GetCorrection(errorR);
 
-	int loopStatus = DirectDrivePID(lRPM, rRPM);
+	int loopStatus = DirectDrivePID(lRPM, rRPM, reset);
 
+	//Increment each side's count variable to count RPM PID runs based on RPM PID return value
 	if(loopStatus == 1)
 		rightCount++;
 	if(loopStatus == 2)
@@ -171,9 +196,49 @@ void Tankdrive::DrivePositionPID(float leftPos, float rightPos, float RPM){
 		leftCount++;
 
 	if(rightCount > 10)
-		rightCount == 1
+		rightCount == 1;
 	if(leftCount > 10)
-		leftCOunt == 1;
+		leftCount == 1;
+	}
+}
+
+void Tankdrive::DrivePath(std::string leftFile, std::string rightFile){
+	//Read the left and right path files into vectors
+	pathReader.ReadFile(leftFile);
+	vector<double> lPositions = pathReader.GetPositions();
+	vector<double> lVelocities = pathReader.GetVelocities();
+
+	pathReader.ReadFile(rightFile);
+	vector<double> rPositions = pathReader.GetPositions();
+	vector<double> rVelocities = pathReader.GetVelocities();
+
+	Timer pathTimer;
+	pathTimer.Reset();
+	pathTimer.Start();
+
+	//Resets all PIDs and encoders
+	DrivePositionPID(0.0, 0.0, 0.0, 0.0, true);
+
+	while(pathTimer.Get() < PATH_DT * lPositions.size()){
+		double time = pathTimer.Get();
+
+		//The lower and upper indices to read
+		double floatIndex = time/PATH_DT;
+		double floorIndex = floor(PATH_DT);
+		double ceilIndex = ceil(PATH_DT);
+
+		//Linear interpolation between the lower and upper indices
+		double lVelocity = lVelocities[floorIndex] + (floatIndex-floorIndex) * (lVelocities[ceilIndex]-lVelocities[floorIndex]);
+		double rVelocity = rVelocities[floorIndex] + (floatIndex-floorIndex) * (rVelocities[ceilIndex]-rVelocities[floorIndex]);
+		double lPosition = lPositions[floorIndex] + (floatIndex-floorIndex) * (lPositions[ceilIndex]-lPositions[floorIndex]);
+		double rPosition = rPositions[floorIndex] + (floatIndex-floorIndex) * (rPositions[ceilIndex]-rPositions[floorIndex]);
+
+		//Conversion from in/s to rpm
+		lVelocity *= 60/ENCODERCONST;
+		rVelocity *= 60/ENCODERCONST;
+
+		//Drive the wheels through the PIDs
+		DrivePositionPID(lPosition, rPosition, lVelocity, rVelocity, false);
 	}
 }
 

@@ -7,6 +7,7 @@
 #include "Vision.h"
 #include "Limelight.h"
 #include "OECPIDController.h"
+#include "PathReader.h"
 
 using namespace frc;
 class Tankdrive
@@ -15,8 +16,11 @@ public: // for functions
 	Tankdrive(unsigned int UsonicPort);
 	void Drive(float left, float right);
 	void DirectDrive(float left, float right);
+	void DriveR(double power);
+	void DriveL(double power);
 	int DirectDrivePID(float leftRPM, float rightRPM, bool reset); // 0 - PID ran on neither, 1 - PID ran on right only, 2 - PID ran on left only, 3 - PID ran on both
-	void DrivePositionPID(float leftPos, float rightPos, float RPM);
+	void DrivePositionPID(float leftPos, float rightPos, float lRPM, float rRPM, bool reset);
+	void DrivePath(std::string leftFile, std::string rightFile);
 	int TeleDriveVision(float USrange, float speed, float bias, bool enable);
 	int TeleDriveLimelight(float USrange, float speed, float bias, bool enable);
 	void SetThrottle(float Ithrottle);
@@ -65,6 +69,8 @@ private:
 
 	OECPIDController ldbPosController;
 	OECPIDController rdbPosController;
+
+	PathReader pathReader;
 
 	//Vision:
 	int returnC;
