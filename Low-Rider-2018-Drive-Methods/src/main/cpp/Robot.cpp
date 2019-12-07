@@ -25,26 +25,13 @@ void Robot::RobotInit()
 }
 
 void Robot::AutonomousInit() {
-    Timer* autonomousTimer = new Timer();
-    autonomousTimer->Reset();
-    tankdrive.AutoDriveLimelight(25.0, 0.2, 120, 24.0);
-    autonomousTimer->Start();
-    while(autonomousTimer->Get() < 2.5){
-        arm.SetToPosition(0.4, ARM_CARGO1_POS);
-    }
-    intake.SetPower(0.5);
-    Wait(1.0);
-    intake.SetPower(0.0);
 }
 
 void Robot::AutonomousPeriodic() {
-    limelight.Update();
-    dash->PutNumber("US Range", tankdrive.GetUSRange());
-    dash->PutNumber("Vision X", limelight.GetXOffset());
+    tankdrive.DirectDrivePID(1000, 2000, false); //for tuning speed PIDs
 }
 
 void Robot::TeleopInit() {
-    ledRing.Set(0.0);
 }
 
 
