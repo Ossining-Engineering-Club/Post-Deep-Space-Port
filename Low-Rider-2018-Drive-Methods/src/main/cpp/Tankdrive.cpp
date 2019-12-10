@@ -89,71 +89,78 @@ void Tankdrive::DriveL(double power){
 	LeftB.Set(power);
 }
 
-//Variables for RPM PIDs
+//Variables for RPM PIDs:
+//Last reocrded position of left and right motors
 double rLastPosition;
 double lLastPosition;
+
+//Time at the last recorded position of left and right motors
 double rTimeLastChange;
 double lTimeLastChange;
-double lastTime;
+
+//Left and right PID correction
+double rCorrection = 0.0;
+double lCorrection = 0.0;
 
 int Tankdrive::DirectDrivePID(float left, float right, bool reset){
 	bool ranl = false; //Variable to tell if the left side PID ran
 	bool ranr = false; //Variable to tell if the right side PID ran
+
+	//current time at start of the loop
 	double currTime = RPMTimer.Get();
+
+	//right and left RPMs
 	double rRPM = 0.0;
 	double lRPM = 0.0;
-	double rPosition = Tankdrive::GetREncoder()/ENCODERCONST; //Conversion from inches to rotations
-	double lPosition = Tankdrive::GetLEncoder()/ENCODERCONST; //Conversion from inches to rotations
+
+	//left and right encoder positions converted from inches to rotations
+	double rPosition = Tankdrive::GetREncoder()/ENCODERCONST;
+	double lPosition = Tankdrive::GetLEncoder()/ENCODERCONST;
+
+	//left and right RPM error
 	double errorR = 0.0;
 	double errorL = 0.0;
+
+	//left and right approximate powers based on free speed and rpm input
+	double rPower = right/DB_FREE_SPEED;
+	double lPower = left/DB_FREE_SPEED;
 
 	//Resets controllers, encoders, and variables between uses
 	if(reset){
 		ldbSpeedController.ResetController();
 		rdbSpeedController.ResetController();
-		lastTime = currTime;
+		lTimeLastChange = currTime;
+		rTimeLastChange = currTime;
 		rLastPosition = rPosition;
 		lLastPosition = lPosition;
-		Tankdrive::ResetEncoders();
-		DirectDrive(left, right);
+		lCorrection = 0.0;
+		rCorrection = 0.0;
 	}
 
-	//If the right encoder position changed from last time calculate RPM and set the right PID to run
+	//If the right encoder position changed from last time calculate RPM, run the PID, and update variables for next time
 	if(rLastPosition != rPosition){
 		rRPM = (rPosition - rLastPosition)/(currTime - rTimeLastChange);
 		ranr = true;
-	}
-	//If speed is less than ~40 rpm (1.6 in/s) assume zero speed and run the PID to keep the update rate fast
-	else if(currTime - rTimeLastChange >= 0.036){
-		rRPM = 0.0;
-		ranr = true;
-	}
-	else{
-		ranr = false;
+		rLastPosition = rPosition;
+		rTimeLastChange = currTime;
+		errorR = rRPM - right;
+		rCorrection = rdbSpeedController.GetCorrection(errorR);
 	}
 
-	//Same code as above for the left side
+	//If the left encoder position changed from last time calculate the RPM, run the PID, and update variables for next time
 	if(lLastPosition != lPosition){
 		lRPM = (lPosition - lLastPosition)/(currTime - lTimeLastChange);
 		ranl = true;
-	}
-	else if(currTime - lTimeLastChange >= 0.036){ 
-		lRPM = 0.0;
-		ranl = true;
-	}
-	else{
-		ranl = false;
+		lLastPosition = lPosition;
+		lTimeLastChange = currTime;
+		errorL = lRPM - left;
+		lCorrection = ldbSpeedController.GetCorrection(errorL);
 	}
 
-	//Calculate left and right speed error
-	errorR = rRPM - right;
-	errorL = lRPM - left;
+	lPower += lCorrection;
+	rPower += rCorrection;
 
-	//Run the PID if a new RPM has been calculated for each side
-	if(ranr &&!reset)
-		Tankdrive::DriveR(rdbSpeedController.GetCorrection(errorR) + right / DB_FREE_SPEED);
-	if(ranl && !reset)
-		Tankdrive::DriveL(rdbSpeedController.GetCorrection(errorL) +left / DB_FREE_SPEED);
+	Tankdrive::DirectDrive(lPower, rPower);
 	
 	return (int)ranr + (int)ranl * 2; //return a value 0-3 for which PIDs ran. 0 = none 1 = right only 2 = left only 3 = both
 }

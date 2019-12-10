@@ -28,7 +28,7 @@ void Robot::AutonomousInit() {
 }
 
 void Robot::AutonomousPeriodic() {
-    tankdrive.DirectDrivePID(1000, 2000, false); //for tuning speed PIDs
+    //tankdrive.DirectDrivePID(1000, 2000, false); //for tuning speed PIDs
 }
 
 void Robot::TeleopInit() {
