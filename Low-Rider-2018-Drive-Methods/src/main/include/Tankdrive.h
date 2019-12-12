@@ -63,8 +63,8 @@ private:
 	float VisionX;
 	float throttle;
 
-	OECPIDController ldbSpeedController;
 	OECPIDController rdbSpeedController;
+	OECPIDController ldbSpeedController;
 	Timer RPMTimer;
 
 	OECPIDController ldbPosController;
@@ -79,5 +79,33 @@ private:
 	float Derivative;
 	float Turn;
 	bool USGood;
+
+//Variables for RPM PIDs:
+//Last reocrded position of left and right motors
+double rLastPosition;
+double lLastPosition;
+
+//Time at the last recorded position of left and right motors
+double rTimeLastChange;
+double lTimeLastChange;
+
+//Left and right PID correction
+double rCorrection = 0.0;
+double lCorrection = 0.0;
+
+bool speedIsFirstRun;
+
+double lsP = 0.0;
+double lsI = 0.0;
+double lsD = 0.0;
+double lsLastError = 0.0;
+
+double rsP = 0.0;
+double rsI = 0.0;
+double rsD = 0.0;
+double rsLastError = 0.0;
+
+double avgLRPM = 0.0;
+double avgRRPM = 0.0;
 
 };

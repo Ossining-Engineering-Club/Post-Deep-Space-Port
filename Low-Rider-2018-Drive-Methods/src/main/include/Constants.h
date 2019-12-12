@@ -5,9 +5,9 @@
 #define LEFTMULT	1.0	//was  1.05 multiplier for the left drive relative to the right
 
 // Sensor constants
-#define AUTOGYROCONST 0.06			// was .07273 // was 0.016
+#define AUTOGYROCONST -0.06			// was .07273 // was 0.016
 #define ANGTOLERANCE 5.0
-#define ENCODERCONST 2.44
+#define ENCODERCONST 3.203
 
 //PID Constants
 #define TIMEPERIOD 0.00001
@@ -59,8 +59,8 @@
 
 #define DB_FREE_SPEED 5880.0
 
-#define DBS_P 0.0
-#define DBS_I 0.0
+#define DBS_P -0.004
+#define DBS_I -0.0
 #define DBS_D 0.0
 #define DBS_MAX 1.0
 

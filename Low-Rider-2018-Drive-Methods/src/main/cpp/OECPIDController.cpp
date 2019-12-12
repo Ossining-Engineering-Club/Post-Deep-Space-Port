@@ -1,7 +1,5 @@
 #include "OECPIDController.h"
 
-double isFirstRun = true;
-
 OECPIDController::OECPIDController():
 pidTimer()
 {
@@ -22,7 +20,8 @@ void OECPIDController::ResetController(){
     lastError = 0.0;
     lastTime = 0.0;
 
-    pidTimer.Reset();    
+    TimeMillis = 0.0;
+    pidTimer.Reset();
 }
 void OECPIDController::SetConstants(double coefP, double coefI, double coefD, double MaximumCorrection)
 {
@@ -42,24 +41,25 @@ double OECPIDController::GetCorrection(double error)
     if(isFirstRun)
     {
         pidTimer.Start();
-        lastTime = GetTimeMillis();
+        lastTime = time;
         lastError = error;
         isFirstRun = false;
         return 0.0;
     }
 
     P = kP * error;
+    
     D = kD * ((error - lastError) / (time - lastTime));
     IIncrement = ((error + lastError) / 2) * (time - lastTime);
 
     //Don't add to the integral if correction is already at the max
-    if(fabs(kP * P + kI * I + kD * D + kI * IIncrement) >= maxCorrection){
-        correction = maxCorrection * fabs(kP * P + kI * I + kD * D + kI * IIncrement)/(kP * P + kI * I + kD * D + kI * IIncrement);
+    if(fabs(P + kI * I + D + kI * IIncrement) >= maxCorrection){
+        correction = maxCorrection * fabs(P + kI * I + D + kI * IIncrement)/(P + kI * I + D + kI * IIncrement);
     }
 
     else{
         I += IIncrement;
-        correction = kP * P + kI * I + kD * D;
+        correction = P + kI * I + D;
     }
 
     lastTime = time;
@@ -70,5 +70,5 @@ double OECPIDController::GetCorrection(double error)
 
 double OECPIDController::GetTimeMillis()
 {
-    return pidTimer.Get()*1000.0;
+	return pidTimer.Get()*1000;
 }

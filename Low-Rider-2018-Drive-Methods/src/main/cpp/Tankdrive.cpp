@@ -1,5 +1,7 @@
 #include "Tankdrive.h"
 #include <frc/WPILib.h>
+
+SmartDashboard *dash;
 // Convencion: Teleob gets joystick vals, AUTO: feed positive vals
 Tankdrive::Tankdrive(unsigned int UsonicPort):
 
@@ -14,16 +16,17 @@ AutoTimer(),
 vision(XRESOLUTION, YRESOLUTION),
 limelight(),
 Usonic(UsonicPort),
-ldbSpeedController(),
 rdbSpeedController(),
+ldbSpeedController(),
 ldbPosController(),
 rdbPosController(),
 RPMTimer()
 
 {
+	dash->init();
 	RPMTimer.Start();
-	ldbSpeedController.SetConstants(DBS_P, DBS_I, DBS_D, DBS_MAX);
 	rdbSpeedController.SetConstants(DBS_P, DBS_I, DBS_D, DBS_MAX);
+	ldbSpeedController.SetConstants(DBS_P, DBS_I, DBS_D, DBS_MAX);
 	ldbPosController.SetConstants(DBP_P, DBP_I, DBP_D, DBP_MAX);
 	rdbPosController.SetConstants(DBP_P, DBP_I, DBP_D, DBP_MAX);
 	Gyro.ResetAngle();
@@ -89,18 +92,6 @@ void Tankdrive::DriveL(double power){
 	LeftB.Set(power);
 }
 
-//Variables for RPM PIDs:
-//Last reocrded position of left and right motors
-double rLastPosition;
-double lLastPosition;
-
-//Time at the last recorded position of left and right motors
-double rTimeLastChange;
-double lTimeLastChange;
-
-//Left and right PID correction
-double rCorrection = 0.0;
-double lCorrection = 0.0;
 
 int Tankdrive::DirectDrivePID(float left, float right, bool reset){
 	bool ranl = false; //Variable to tell if the left side PID ran
@@ -114,8 +105,8 @@ int Tankdrive::DirectDrivePID(float left, float right, bool reset){
 	double lRPM = 0.0;
 
 	//left and right encoder positions converted from inches to rotations
-	double rPosition = Tankdrive::GetREncoder()/ENCODERCONST;
-	double lPosition = Tankdrive::GetLEncoder()/ENCODERCONST;
+	double rPosition = Tankdrive::GetREncoder();
+	double lPosition = Tankdrive::GetLEncoder();
 
 	//left and right RPM error
 	double errorR = 0.0;
@@ -127,8 +118,8 @@ int Tankdrive::DirectDrivePID(float left, float right, bool reset){
 
 	//Resets controllers, encoders, and variables between uses
 	if(reset){
-		ldbSpeedController.ResetController();
 		rdbSpeedController.ResetController();
+		ldbSpeedController.ResetController();
 		lTimeLastChange = currTime;
 		rTimeLastChange = currTime;
 		rLastPosition = rPosition;
@@ -140,28 +131,49 @@ int Tankdrive::DirectDrivePID(float left, float right, bool reset){
 	//If the right encoder position changed from last time calculate RPM, run the PID, and update variables for next time
 	if(rLastPosition != rPosition){
 		rRPM = (rPosition - rLastPosition)/(currTime - rTimeLastChange);
+		avgRRPM *= 0.75;		//half-life = 2.4 cycles
+		avgRRPM += 0.25*rRPM;
 		ranr = true;
+		errorR = avgRRPM - right;
+
+		rsI += errorR * (currTime - rTimeLastChange);
+		rsD = (errorR - rLastError)/(currTime - rTimeLastChange)
+
+		rCorrection = DBS_P * errorR + DBS_I * rsI + DBS_D * rsD;
 		rLastPosition = rPosition;
 		rTimeLastChange = currTime;
-		errorR = rRPM - right;
-		rCorrection = rdbSpeedController.GetCorrection(errorR);
+		rLastError = errorR;
 	}
 
 	//If the left encoder position changed from last time calculate the RPM, run the PID, and update variables for next time
 	if(lLastPosition != lPosition){
-		lRPM = (lPosition - lLastPosition)/(currTime - lTimeLastChange);
+		lRPM = (lPosition - lLastPosition)/(currTime - lTimeLastChange)*60.0;
+		avgLRPM *= 0.75; 
+		avgLRPM += 0.25*lRPM;
 		ranl = true;
+		errorL = avgLRPM - left;
+		
+		lsI += errorL * (currTime - lTimeLastChange);
+		lsD = (errorL - lLastError)/(currTime - lTimeLastChange)
+
+		lCorrection = DBS_P * errorL + DBS_I * lsI + DBS_D * lsD;
+
 		lLastPosition = lPosition;
 		lTimeLastChange = currTime;
-		errorL = lRPM - left;
-		lCorrection = ldbSpeedController.GetCorrection(errorL);
+		lLastError = errorL;
+		
+		dash->PutNumber("speed pid time", currTime);
+		dash->PutNumber("left position", lPosition);
+		dash->PutNumber("left error", errorL);
+		dash->PutNumber("left correction", lCorrection);
+		dash->PutNumber("left speed", avgLRPM);
 	}
-
 	lPower += lCorrection;
 	rPower += rCorrection;
 
+	dash->PutNumber("leftPower", lPower);
 	Tankdrive::DirectDrive(lPower, rPower);
-	
+	Wait(0.002);
 	return (int)ranr + (int)ranl * 2; //return a value 0-3 for which PIDs ran. 0 = none 1 = right only 2 = left only 3 = both
 }
 

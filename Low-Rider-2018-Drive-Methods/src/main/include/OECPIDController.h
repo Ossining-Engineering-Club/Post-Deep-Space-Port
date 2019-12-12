@@ -11,7 +11,7 @@ class OECPIDController{
     private:
         frc::Timer pidTimer;
         double GetTimeMillis();
-
+        double isFirstRun;
         double kP;
         double kI;
         double kD;
@@ -20,6 +20,8 @@ class OECPIDController{
         double P;
         double I;
         double D;
+
+        double TimeMillis;
 
         double correction;
         double lastError;
