@@ -1,5 +1,5 @@
 #pragma once
-#include "WPIlib.h"
+#include <frc/WPIlib.h>
 #include <rev/CANSparkMax.h>
 #include "Constants.h"
 #include "Ultrasonic.h"

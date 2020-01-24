@@ -1,5 +1,5 @@
 #pragma once
-#include "WPIlib.h"
+#include <frc/WPIlib.h>
 
 class OECJoystick{
     private:

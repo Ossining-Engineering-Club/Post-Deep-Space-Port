@@ -1,12 +1,12 @@
 
 #pragma once
 #include <memory>
-#include "WPIlib.h"
+#include <frc/WPIlib.h>
 #include <algorithm>
 #include <vector>
 #include "Constants.h"
 #include "networktables/NetworkTable.h"
-#include <networktables/NetworkTableInstance.h>
+#include "networktables/NetworkTableInstance.h"
 
 using namespace frc;
 class Limelight

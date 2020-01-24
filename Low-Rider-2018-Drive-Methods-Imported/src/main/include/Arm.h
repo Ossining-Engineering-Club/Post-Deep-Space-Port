@@ -1,6 +1,6 @@
 #pragma once
 #include <rev/CANSparkMax.h>
-#include "WPIlib.h"
+#include <frc/WPIlib.h>
 #include "Constants.h"
 
 class Arm{

@@ -4,7 +4,7 @@
  * 
  */
 #pragma once
-#include "WPIlib.h"	//Include the FRC Library
+#include <frc/WPIlib.h>	//Include the FRC Library
 
 
 /*

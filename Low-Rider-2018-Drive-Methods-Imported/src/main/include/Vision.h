@@ -5,11 +5,11 @@
  */
 #pragma once
 #include <memory>
-#include "WPIlib.h"
+#include <frc/WPIlib.h>
 #include <algorithm>
 #include <vector>
 #include "Constants.h"
-#include <networktables/NetworkTableInstance.h>
+#include "networktables/NetworkTableInstance.h"
 #define NetTable shared_ptr<NetworkTable>	// the network table uses a shared pointer, this is a smart pointer
 #define Gvector vector<double>				// a vector designed for Grip
 
