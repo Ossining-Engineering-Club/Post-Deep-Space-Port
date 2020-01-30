@@ -15,6 +15,12 @@
 #define ICONSTANT -0.025	// was 300
 #define DCONSTANT -0		// was 0.000125
 
+#define AIM_P -0.012
+#define AIM_I -0.025	// was 300
+#define AIM_D -0		// was 0.000125
+
+
+
 
 // VISION
 #define MINVISION 168
@@ -73,3 +79,5 @@
 
 
 #define LIDAR_OFFSET -10.0
+
+#define LIMELIGHT_DIST_CONSTANT 1.0

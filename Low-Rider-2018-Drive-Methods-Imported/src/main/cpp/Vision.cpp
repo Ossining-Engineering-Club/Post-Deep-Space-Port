@@ -1,4 +1,3 @@
-#include <frc/WPILib.h>
 #include "Vision.h"
 
 Vision::Vision(unsigned int ResX, unsigned int ResY)

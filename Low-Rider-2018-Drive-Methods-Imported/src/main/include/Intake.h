@@ -1,5 +1,5 @@
 #pragma once
-#include <frc/WPIlib.h>
+#include <frc/DigitalInput.h>
 #include <ctre/Phoenix.h>
 class Intake{
     private:

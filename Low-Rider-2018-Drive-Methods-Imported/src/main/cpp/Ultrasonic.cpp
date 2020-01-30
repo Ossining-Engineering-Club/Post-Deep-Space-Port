@@ -1,5 +1,4 @@
 #include "Ultrasonic.h"
-#include <frc/WPILib.h>
 
 USSensor::USSensor(unsigned int channel):
 	uschannel(channel)

@@ -4,7 +4,7 @@
  * 
  */
 #pragma once
-#include <frc/WPIlib.h>	//Include the FRC Library
+#include <frc/AnalogInput.h>	//Include the FRC Library
 
 
 /*

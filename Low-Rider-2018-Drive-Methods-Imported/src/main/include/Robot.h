@@ -7,7 +7,9 @@
 
 #pragma once
  
- #include <frc/WPIlib.h>
+ #include <frc/smartdashboard/SmartDashboard.h>
+ #include <frc/Victor.h>
+ #include <cscore_oo.h>
  #include "Tankdrive.h"
  #include "Constants.h"
  #include "Arm.h"
@@ -17,6 +19,7 @@
  #include "OECJoystick.h"
  #include "Limelight.h"
  #include "LidarLite.h"
+ #include "PositionSolve.h"
 
 using namespace frc;
 
@@ -36,6 +39,7 @@ class Robot : public frc::TimedRobot {
   OECJoystick stickUtil;
   Victor ledRing;
   LidarLite lidar;
+  PositionSolve solve;
 
   
  public:

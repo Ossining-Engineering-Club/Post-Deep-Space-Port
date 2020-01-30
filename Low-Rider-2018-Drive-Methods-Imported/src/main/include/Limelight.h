@@ -1,14 +1,12 @@
 
 #pragma once
 #include <memory>
-#include <frc/WPIlib.h>
 #include <algorithm>
 #include <vector>
 #include "Constants.h"
 #include "networktables/NetworkTable.h"
 #include "networktables/NetworkTableInstance.h"
 
-using namespace frc;
 class Limelight
 {
 public:
@@ -23,6 +21,7 @@ public:
 	double GetYOffset();		// returns the y value of the tracked image
 	double GetHeight();	// returns the height
 	double GetWidth();	// returns the width
+	void SetVisionModeOn(bool VisionModeOn);
 
 
 private:

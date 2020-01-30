@@ -1,4 +1,5 @@
 #include "Robot.h"
+#include "PositionSolve.h"
 
 Robot::Robot():
     tankdrive(0),
@@ -44,7 +45,10 @@ int visionEnd = 4;
 void Robot::TeleopPeriodic() {
 
     dash->PutNumber("Lidar Distance", lidar.GetDistance());
-    
+    dash->PutNumber("Vision Target Height", solve.GetVTHeight());
+
+    dash->PutNumber("Target Angle", solve.GetTargetAngle());
+    dash->PutNumber("Target Distance LL", solve.GetDistLimelight());
     //Throttles:
     liftThrottle = stickUtil.GetZ() / -2.0 + 0.5;
     tankdrive.SetThrottle(stickLeft.GetZ());
@@ -52,12 +56,12 @@ void Robot::TeleopPeriodic() {
 
     //Select Vision or normal driving
     if(stickRight.GetTrigger()){
-        ledRing.Set(LED_VALUE);
+        limelight.SetVisionModeOn(true);
     }
     else{
-        ledRing.Set(0.0);
+        limelight.SetVisionModeOn(false); 
     }
-    visionEnd = tankdrive.TeleDriveVision(8.0, 0.3*stickRight.GetY(), stickRight.GetX(), stickRight.GetTrigger());
+    visionEnd = tankdrive.TeleAimLimelight(0.4, stickRight.GetTrigger());
     if(!stickRight.GetTrigger()){
         tankdrive.Drive(stickLeft.GetY(), stickRight.GetY());
     }
@@ -97,7 +101,7 @@ void Robot::TeleopPeriodic() {
     }
 
     else if(armMode == 1){
-        dash->PutString("arm state", "Load");
+        dash->PutString("arm mode", "Load");
         arm.SetToPosition(0.4, ARM_PICKUP_POS);
         lift.SetToPosition(0.3, LIFT_PICKUP_POS);
     }

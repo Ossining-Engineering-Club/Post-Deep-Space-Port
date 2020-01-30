@@ -1,7 +1,9 @@
 #pragma once
-#include <frc/WPIlib.h>
+#include <frc/Joystick.h>
+#include <frc/buttons/JoystickButton.h>
 
-class OECJoystick{
+
+class OECJoystick{=
     private:
         frc::Joystick *stick;
         frc::JoystickButton *buttons[11];

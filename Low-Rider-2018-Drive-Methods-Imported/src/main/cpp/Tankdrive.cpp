@@ -1,7 +1,5 @@
 #include "Tankdrive.h"
-#include <frc/WPILib.h>
 
-SmartDashboard *dash;
 // Convencion: Teleob gets joystick vals, AUTO: feed positive vals
 Tankdrive::Tankdrive(unsigned int UsonicPort):
 
@@ -13,10 +11,7 @@ LWEncoder(LeftF, rev::CANEncoder::EncoderType::kHallSensor, 1),
 RWEncoder(RightF, rev::CANEncoder::EncoderType::kHallSensor, 1),
 Gyro(30),
 AutoTimer(),
-vision(XRESOLUTION, YRESOLUTION),
-limelight(
-
-),
+limelight(),
 Usonic(UsonicPort),
 rdbSpeedController(),
 ldbSpeedController(),
@@ -25,7 +20,6 @@ rdbPosController(),
 RPMTimer()
 
 {
-	dash->init();
 	RPMTimer.Start();
 	rdbSpeedController.SetConstants(DBS_P, DBS_I, DBS_D, DBS_MAX);
 	ldbSpeedController.SetConstants(DBS_P, DBS_I, DBS_D, DBS_MAX);
@@ -163,17 +157,11 @@ int Tankdrive::DirectDrivePID(float left, float right, bool reset){
 		lLastPosition = lPosition;
 		lTimeLastChange = currTime;
 		lsLastError = errorL;
-		
-		dash->PutNumber("speed pid time", currTime);
-		dash->PutNumber("left position", lPosition);
-		dash->PutNumber("left error", errorL);
-		dash->PutNumber("left correction", lCorrection);
-		dash->PutNumber("left speed", avgLRPM);
+
 	}
 	lPower += lCorrection;
 	rPower += rCorrection;
 
-	dash->PutNumber("leftPower", lPower);
 	Tankdrive::DirectDrive(lPower, rPower);
 	Wait(0.002);
 	return (int)ranr + (int)ranl * 2; //return a value 0-3 for which PIDs ran. 0 = none 1 = right only 2 = left only 3 = both
@@ -270,7 +258,8 @@ void Tankdrive::SetThrottle(float Ithrottle)
 {
 	throttle = (1 - Ithrottle) / 2;
 }
-int Tankdrive::TeleDriveVision(float USrange, float speed, float bias, bool enable){
+
+int Tankdrive::TeleAimLimelight(float speed, bool enable){
 
 	speed *= -1.0;
 	
@@ -279,95 +268,18 @@ int Tankdrive::TeleDriveVision(float USrange, float speed, float bias, bool enab
 		Integral = 0.0;
 		LastSample = 0.0;
 		LastTime = 0.0;
-		for (int i = 0; i < 10; i++)
-			Usonic.GetSample();
-		USGood = 1;
 
 		if(speed > 1)
 			speed = 1;
 		else if(speed < -1)
 			speed = -1;
 
-		if(bias > 1.0)
-			bias = 1.0;
-		else if(bias < -1.0)
-			bias = 1.0;
-
 		AutoTimer.Reset();
 		AutoTimer.Start();
-		LWEncoder.SetPosition(0.0);
-		RWEncoder.SetPosition(0.0);    //Reset Wheel Encoders
 
-		if (Usonic.GetRange() < 15)
-			USGood = 0;
 	}
-	if(enable && (Usonic.GetRange() > USrange  || !USGood)){
-		vision.Update();
-		Time = AutoTimer.Get();
-		if (vision.GetNumContours() != 0)
-		{
-			if (vision.GetNumContours() == 1) VisionX = vision.GetX(0);
-			else VisionX = (vision.GetX(0) + vision.GetX(1)) /2;
-			Sample = VisionX - ((XRESOLUTION/2) * (1-bias/2));		//map a bias of 1 to the left quarter and -1 to the right quarter of the image
-			Integral = Integral + ((Time-LastTime)/2)*(Sample+LastSample);
-		    Derivative = (Sample - LastSample)/(Time-LastTime);
-		    // If Sample, Integral and Derivative are 0, then we want go with speed on each side
-		    // If Sample, Integral or Derivative are large positive, left drive = -1, right drive = 1
-		    // If Sample, Integral or Derivative are large negative, left drive = 1, right drive = -1
-		    // We would like the average of the two sides to be speed
-
-		    Turn = PCONSTANT * Sample + ICONSTANT * Integral + DCONSTANT * Derivative;
-			Tankdrive::DirectDrive(speed * (1 - Turn), speed * (1 + Turn));
-			LastSample = Sample;
-		}
-		else
-			Tankdrive::DirectDrive(speed,speed); //Needed to prevent crash
-		Usonic.GetSample();
-	}
-	if ((Usonic.GetRange() <= USrange) && enable){
-		returnC = 2;
-		Tankdrive::DirectDrive(0.0,0.0);
-	}
-	if(!enable){
-		returnC = 4;
-	}
-	LastTime = Time;
-	return returnC;
-}
-
-int Tankdrive::TeleDriveLimelight(float USrange, float speed, float bias, bool enable){
-
-	speed *= -1.0;
-	
-	if(enable && !lastEnable){
-		returnC = 0;
-		Integral = 0.0;
-		LastSample = 0.0;
-		LastTime = 0.0;
-		for (int i = 0; i < 10; i++)
-			Usonic.GetSample();
-		USGood = 1;
-
-		if(speed > 1)
-			speed = 1;
-		else if(speed < -1)
-			speed = -1;
-
-		if(bias > 1.0)
-			bias = 1.0;
-		else if(bias < -1.0)
-			bias = 1.0;
-
-		AutoTimer.Reset();
-		AutoTimer.Start();
-		LWEncoder.SetPosition(0.0);
-		RWEncoder.SetPosition(0.0);    //Reset Wheel Encoders
-
-		if (Usonic.GetRange() < 15)
-			USGood = 0;
-	}
-	if(enable && (Usonic.GetRange() > USrange  || !USGood)){
-		vision.Update();
+	if(enable){
+		limelight.Update();
 		double Time = AutoTimer.Get();
 		if (limelight.IsTargetFound())
 		{
@@ -379,18 +291,10 @@ int Tankdrive::TeleDriveLimelight(float USrange, float speed, float bias, bool e
 		    // If Sample, Integral or Derivative are large negative, left drive = 1, right drive = -1
 		    // We would like the average of the two sides to be speed
 
-		    Turn = PCONSTANT * Sample + ICONSTANT * Integral + DCONSTANT * Derivative;
-			Tankdrive::DirectDrive(speed * (1 - Turn), speed * (1 + Turn));
+		    Turn = AIM_P * Sample + AIM_I * Integral + AIM_D * Derivative;
+			Tankdrive::DirectDrive(speed*Turn, -1.0*speed*Turn);
 			LastSample = Sample;
 		}
-		else
-			Tankdrive::DirectDrive(speed,speed); //Needed to prevent crash
-		Usonic.GetSample();
-	}
-	if ((Usonic.GetRange() <= USrange ))
-		returnC = 2;
-	if(!enable){
-		returnC = 4;
 	}
 }
 
@@ -469,63 +373,8 @@ void Tankdrive::AutoDriveGyroLimit(float distance, float speed, float TimeOut, D
 	Lift.Set(0.0);
 }
 
-int Tankdrive::AutoDriveVision(float USrange, float speed, float Maxdistance, float TimeOut) //Args are distance, speed
-{
-	returnC = 0;
-	Integral = 0.0;
-	LastSample = 0.0;
-	for (int i = 0; i < 10; i++)
-		Usonic.GetSample();
-	USGood = 1;
 
-	if(speed > 1)
-		speed = 1;
-	else if(speed < -1)
-		speed = -1;
 
-	AutoTimer.Reset();
-	AutoTimer.Start();
-	LWEncoder.SetPosition(0.0);
-	RWEncoder.SetPosition(0.0);    //Reset Wheel Encoders
-
-	if (Usonic.GetRange() < 15)
-		USGood = 0;
-
-	while(((((fabs(LWEncoder.GetPosition()) + fabs(RWEncoder.GetPosition())) / 2) < Maxdistance)
-			&& (Usonic.GetRange() > USrange  || !USGood)) && AutoTimer.Get() <= TimeOut)
-	{
-		vision.Update();
-		if (vision.GetNumContours() != 0)
-		{
-			if (vision.GetNumContours() == 1) VisionX = vision.GetX(0);
-			else VisionX = (vision.GetX(0) + vision.GetX(1)) /2;
-			Sample = VisionX - 160;
-			Integral = Integral + (TIMEPERIOD/2)*(Sample+LastSample);
-		    Derivative = (Sample - LastSample)/TIMEPERIOD;
-		    // If Sample, Integral and Derivative are 0, then we want go with speed on each side
-		    // If Sample, Integral or Derivative are large positive, left drive = -1, right drive = 1
-		    // If Sample, Integral or Derivative are large negative, left drive = 1, right drive = -1
-		    // We would like the average of the two sides to be speed
-
-		    Turn = PCONSTANT * Sample + ICONSTANT * Integral + DCONSTANT * Derivative;
-			Tankdrive::DirectDrive(speed * (1 - Turn), speed * (1 + Turn));
-			LastSample = Sample;
-		}
-		else
-			Tankdrive::DirectDrive(speed,speed); //Needed to prevent crash
-		Usonic.GetSample();
-		Wait(TIMEPERIOD);
-	}
-	if (((fabs(LWEncoder.GetPosition()) + fabs(RWEncoder.GetPosition())) / 2) >= Maxdistance)
-		returnC = 1;
-	else if ((Usonic.GetRange() <= USrange ))
-		returnC = 2;
-	else if (AutoTimer.Get() > TimeOut)
-		returnC = 3;
-
-	Tankdrive::DirectDrive(0.0,0.0);
-	return returnC;
-}
 
 int Tankdrive::AutoDriveLimelight(float USrange, float speed, float Maxdistance, float TimeOut) //Args are distance, speed
 {

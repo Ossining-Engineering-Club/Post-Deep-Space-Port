@@ -1,5 +1,7 @@
 #pragma once
-#include <frc/WPIlib.h>
+#include <frc/Timer.h>
+#include <frc/DigitalInput.h>
+#include <frc/Jaguar.h>
 #include <rev/CANSparkMax.h>
 #include "Constants.h"
 #include "Ultrasonic.h"
@@ -16,23 +18,27 @@ public: // for functions
 	Tankdrive(unsigned int UsonicPort);
 	void Drive(float left, float right);
 	void DirectDrive(float left, float right);
+
 	void DriveR(double power);
 	void DriveL(double power);
+
 	int DirectDrivePID(float leftRPM, float rightRPM, bool reset); // 0 - PID ran on neither, 1 - PID ran on right only, 2 - PID ran on left only, 3 - PID ran on both
 	void DrivePositionPID(float leftPos, float rightPos, float lRPM, float rRPM, bool reset);
+
 	void DrivePath(std::string leftFile, std::string rightFile);
-	int TeleDriveVision(float USrange, float speed, float bias, bool enable);
+
+	int TeleAimLimelight(float speed, bool enable);
 	int TeleDriveLimelight(float USrange, float speed, float bias, bool enable);
+
 	void SetThrottle(float Ithrottle);
 
 	void AutoDriveGyro(float distance, float speed, float TimeOut);
 	void AutoDriveGyro(float distance, float speed, float TimeOut, bool startup);
-
 	void AutoDriveGyroLimit(float distance, float speed, float TimeOut, DigitalInput& LimitLift, Jaguar& Lift);
 	void AutoTurnGyroBoth(float angle, float speed, float TimeOut);
 	void AutoTurnGyro(float angle, float speed, float TimeOut);
 	void AutoDriveGyroUS(float, float, float);
-	int AutoDriveVision(float USrange, float speed, float Maxdistance, float TimeOut);
+
 	int AutoDriveLimelight(float USrange, float speed, float Maxdistance, float TimeOut);
 
 	bool IsLimit();
@@ -54,12 +60,13 @@ private:
 
 	rev::CANEncoder LWEncoder;
 	rev::CANEncoder RWEncoder;
-//	AnalogGyro Gyro;
+
 	OECPigeonIMU Gyro;
+
 	Timer AutoTimer;
-	Vision vision;
 	Limelight limelight;
 	USSensor Usonic;
+	
 	float VisionX;
 	float throttle;
 

@@ -5,7 +5,6 @@
  */
 #pragma once
 #include <memory>
-#include <frc/WPIlib.h>
 #include <algorithm>
 #include <vector>
 #include "Constants.h"
@@ -16,7 +15,6 @@
 using std::vector;
 using std::shared_ptr;
 
-using namespace frc;
 class Vision
 {
 public:

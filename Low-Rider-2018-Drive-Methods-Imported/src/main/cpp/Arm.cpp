@@ -1,10 +1,8 @@
 #include "Arm.h"
-#include "frc/WPILib.h"
 #include <iostream>
 
 Arm::Arm(frc::SmartDashboard *dash){
     smartdash = dash;
-    smartdash->PutString("Init Status", "Starting Arm Encoder Initialization");
     armMotor = new rev::CANSparkMax(40, rev::CANSparkMax::MotorType::kBrushless);
     armMotor->GetEncoder();
     armMotor->SetIdleMode(rev::CANSparkMax::IdleMode::kBrake);

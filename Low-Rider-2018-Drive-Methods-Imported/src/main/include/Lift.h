@@ -1,4 +1,7 @@
- #include <frc/WPIlib.h> 
+
+#include <frc/Encoder.h>
+#include <frc/smartdashboard/SmartDashboard.h>
+
 #include <ctre/Phoenix.h>
 
 class Lift{

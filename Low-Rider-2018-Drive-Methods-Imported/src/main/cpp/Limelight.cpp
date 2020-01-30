@@ -1,4 +1,3 @@
-#include <frc/WPILib.h>
 #include "Limelight.h"
 
 Limelight::Limelight()
@@ -46,5 +45,8 @@ double Limelight::GetWidth()
 {
 	return Width;
 }
-
+void Limelight::SetVisionModeOn(bool VisionModeOn){
+	Table->PutNumber("ledMode", VisionModeOn ? 0.0 : 1.0);
+	Table->PutNumber("camMode", VisionModeOn ? 0.0 : 1.0);
+}
 

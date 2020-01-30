@@ -1,4 +1,5 @@
-#include <frc/WPIlib.h>
+#include <frc/VictorSP.h>
+#include <frc/DigitalInput.h>
 #include <ctre/Phoenix.h>
 
 class Stilts{
