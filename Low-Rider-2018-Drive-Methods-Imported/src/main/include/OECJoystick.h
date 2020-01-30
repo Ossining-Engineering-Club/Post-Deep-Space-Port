@@ -3,7 +3,7 @@
 #include <frc/buttons/JoystickButton.h>
 
 
-class OECJoystick{=
+class OECJoystick{
     private:
         frc::Joystick *stick;
         frc::JoystickButton *buttons[11];
